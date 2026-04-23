@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '../components/Navbar';
@@ -174,6 +174,14 @@ function LogRow({ log }: { log: AlarmLog }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function LogsPage() {
+  return (
+    <Suspense fallback={null}>
+      <LogsPageInner />
+    </Suspense>
+  );
+}
+
+function LogsPageInner() {
   const searchParams = useSearchParams();
   const initId = searchParams.get('alarmId') ?? '';
 
