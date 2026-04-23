@@ -1,0 +1,154 @@
+Alarm_ID,Category,Alarm_Name_EN,Alarm_Name_TH,Field_Name,Field_Sample,Field_Type,Field_Unit
+1,Safety & Compliance,Emergency Stop Activated,ปุ่มหยุดฉุกเฉินถูกกด,Timestamp,2026-04-22 14:30:45,DateTime,yyyy-MM-dd HH:mm:ss
+1,Safety & Compliance,Emergency Stop Activated,ปุ่มหยุดฉุกเฉินถูกกด,IO_Status,TRIGGERED,String,TRIGGERED/CLEARED
+1,Safety & Compliance,Emergency Stop Activated,ปุ่มหยุดฉุกเฉินถูกกด,Button_State,PRESSED,String,PRESSED/RELEASED
+1,Safety & Compliance,Emergency Stop Activated,ปุ่มหยุดฉุกเฉินถูกกด,Log_File,LOG_20260422_001.csv,String,filename
+2,Safety & Compliance,Safety Scanner Triggered,เซฟตี้สแกนเนอร์ทำงาน,Timestamp,2026-04-22 14:35:20,DateTime,yyyy-MM-dd HH:mm:ss
+2,Safety & Compliance,Safety Scanner Triggered,เซฟตี้สแกนเนอร์ทำงาน,Lidar_Status_Code,ERROR_001,String,ERROR_XXX
+2,Safety & Compliance,Safety Scanner Triggered,เซฟตี้สแกนเนอร์ทำงาน,Error_Code,LIDAR_COMM_FAIL,String,Error description
+2,Safety & Compliance,Safety Scanner Triggered,เซฟตี้สแกนเนอร์ทำงาน,Detection_Zone,ZONE_A_TRIGGERED,String,Zone name
+3,Safety & Compliance,Safety Zone Violation,ละเมิดเขตความปลอดภัย,Timestamp,2026-04-22 15:10:15,DateTime,yyyy-MM-dd HH:mm:ss
+3,Safety & Compliance,Safety Zone Violation,ละเมิดเขตความปลอดภัย,Wall_Zone_X,10.5,Float,meters
+3,Safety & Compliance,Safety Zone Violation,ละเมิดเขตความปลอดภัย,Wall_Zone_Y,5.3,Float,meters
+3,Safety & Compliance,Safety Zone Violation,ละเมิดเขตความปลอดภัย,Robot_Pose_X,10.45,Float,meters
+3,Safety & Compliance,Safety Zone Violation,ละเมิดเขตความปลอดภัย,Robot_Pose_Y,5.25,Float,meters
+3,Safety & Compliance,Safety Zone Violation,ละเมิดเขตความปลอดภัย,Robot_Pose_Theta,1.57,Float,radians
+3,Safety & Compliance,Safety Zone Violation,ละเมิดเขตความปลอดภัย,Violation_Distance,0.08,Float,meters
+4,Safety & Compliance,Reduced Speed Zone Violation,ละเมิดโซนจำกัดความเร็ว,Timestamp,2026-04-22 15:20:33,DateTime,yyyy-MM-dd HH:mm:ss
+4,Safety & Compliance,Reduced Speed Zone Violation,ละเมิดโซนจำกัดความเร็ว,Speed_Zone_X,8.5,Float,meters
+4,Safety & Compliance,Reduced Speed Zone Violation,ละเมิดโซนจำกัดความเร็ว,Speed_Zone_Y,3.2,Float,meters
+4,Safety & Compliance,Reduced Speed Zone Violation,ละเมิดโซนจำกัดความเร็ว,Robot_Pose_X,8.45,Float,meters
+4,Safety & Compliance,Reduced Speed Zone Violation,ละเมิดโซนจำกัดความเร็ว,Current_Speed,1.5,Float,m/s
+4,Safety & Compliance,Reduced Speed Zone Violation,ละเมิดโซนจำกัดความเร็ว,Zone_Speed_Limit,0.5,Float,m/s
+5,Localization & Mapping,Lost Localization,ไม่สามารถระบุตำแหน่งได้,Timestamp,2026-04-22 16:05:22,DateTime,yyyy-MM-dd HH:mm:ss
+5,Localization & Mapping,Lost Localization,ไม่สามารถระบุตำแหน่งได้,AMCL_Pose_Available,NO,String,YES/NO
+5,Localization & Mapping,Lost Localization,ไม่สามารถระบุตำแหน่งได้,Pose_Uncertainty,2.5,Float,meters
+5,Localization & Mapping,Lost Localization,ไม่สามารถระบุตำแหน่งได้,Last_Valid_Position_X,10.5,Float,meters
+5,Localization & Mapping,Lost Localization,ไม่สามารถระบุตำแหน่งได้,Last_Valid_Position_Y,5.3,Float,meters
+5,Localization & Mapping,Lost Localization,ไม่สามารถระบุตำแหน่งได้,Log_File,LOG_AMCL_20260422.log,String,filename
+6,Localization & Mapping,Localization Accuracy Low,ความแม่นยำของตำแหน่งต่ำ,Timestamp,2026-04-22 16:30:10,DateTime,yyyy-MM-dd HH:mm:ss
+6,Localization & Mapping,Localization Accuracy Low,ความแม่นยำของตำแหน่งต่ำ,Current_Pose_Accuracy,0.8,Float,meters
+6,Localization & Mapping,Localization Accuracy Low,ความแม่นยำของตำแหน่งต่ำ,Threshold_Value,0.2,Float,meters
+6,Localization & Mapping,Localization Accuracy Low,ความแม่นยำของตำแหน่งต่ำ,Occurrence_Count,3,Integer,times
+7,Localization & Mapping,Map Mismatch,แผนที่ไม่ตรงกับหน้างาน,Timestamp,2026-04-22 17:00:45,DateTime,yyyy-MM-dd HH:mm:ss
+7,Localization & Mapping,Map Mismatch,แผนที่ไม่ตรงกับหน้างาน,Current_Map_ID,MAP_FLOOR2_V1,String,Map ID
+7,Localization & Mapping,Map Mismatch,แผนที่ไม่ตรงกับหน้างาน,Expected_Map_ID,MAP_FLOOR1_V2,String,Map ID
+7,Localization & Mapping,Map Mismatch,แผนที่ไม่ตรงกับหน้างาน,NoRed_Swap_Status,FAILED,String,SUCCESS/FAILED
+8,Localization & Mapping,Marker / QR / RFID Not Found,ไม่พบ Marker / QR / RFID,Timestamp,2026-04-22 17:15:20,DateTime,yyyy-MM-dd HH:mm:ss
+8,Localization & Mapping,Marker / QR / RFID Not Found,ไม่พบ Marker / QR / RFID,Expected_Marker_ID,DOCK_A_QR01,String,Marker ID
+8,Localization & Mapping,Marker / QR / RFID Not Found,ไม่พบ Marker / QR / RFID,Dock_Log_File,DOCK_LOG_20260422.log,String,filename
+8,Localization & Mapping,Marker / QR / RFID Not Found,ไม่พบ Marker / QR / RFID,Scan_Attempts,5,Integer,times
+9,Localization & Mapping,Re-localization Failed,ระบุตำแหน่งใหม่ไม่สำเร็จ,Timestamp,2026-04-22 18:00:33,DateTime,yyyy-MM-dd HH:mm:ss
+9,Localization & Mapping,Re-localization Failed,ระบุตำแหน่งใหม่ไม่สำเร็จ,Lift_Reset_Status,FAILED,String,SUCCESS/FAILED
+9,Localization & Mapping,Re-localization Failed,ระบุตำแหน่งใหม่ไม่สำเร็จ,Retry_Count,4,Integer,times
+9,Localization & Mapping,Re-localization Failed,ระบุตำแหน่งใหม่ไม่สำเร็จ,Log_File,LOG_RELOC_20260422.log,String,filename
+10,Navigation & Path Control,Path Blocked,เส้นทางถูกกีดขวาง,Timestamp,2026-04-22 18:30:15,DateTime,yyyy-MM-dd HH:mm:ss
+10,Navigation & Path Control,Path Blocked,เส้นทางถูกกีดขวาง,Path_X,12.5,Float,meters
+10,Navigation & Path Control,Path Blocked,เส้นทางถูกกีดขวาง,Path_Y,8.3,Float,meters
+10,Navigation & Path Control,Path Blocked,เส้นทางถูกกีดขวาง,Goal_X,15.0,Float,meters
+10,Navigation & Path Control,Path Blocked,เส้นทางถูกกีดขวาง,Goal_Y,10.0,Float,meters
+10,Navigation & Path Control,Path Blocked,เส้นทางถูกกีดขวาง,MoveBase_Status,PLAN_FAILED,String,Status code
+10,Navigation & Path Control,Path Blocked,เส้นทางถูกกีดขวาง,Obstacle_Detection,DETECTED,String,DETECTED/CLEAR
+11,Motion & Drive System,Motor Overtemperature,มอเตอร์ร้อนเกิน,Timestamp,2026-04-22 19:00:22,DateTime,yyyy-MM-dd HH:mm:ss
+11,Motion & Drive System,Motor Overtemperature,มอเตอร์ร้อนเกิน,Current_Temperature_C,85.5,Float,Celsius
+11,Motion & Drive System,Motor Overtemperature,มอเตอร์ร้อนเกิน,Temperature_Threshold_C,75.0,Float,Celsius
+11,Motion & Drive System,Motor Overtemperature,มอเตอร์ร้อนเกิน,Error_Status_Code,E_MOTOR_TEMP_001,String,Error code
+12,Motion & Drive System,Drive Enable Fail,Drive Disable,Timestamp,2026-04-22 19:15:45,DateTime,yyyy-MM-dd HH:mm:ss
+12,Motion & Drive System,Drive Enable Fail,Drive Disable,Drive_Status_Code,DRIVE_DISABLED,String,Status code
+12,Motion & Drive System,Drive Enable Fail,Drive Disable,Error_Details,Voltage_Out_of_Range,String,Error description
+12,Motion & Drive System,Drive Enable Fail,Drive Disable,Voltage_Reading,18.5,Float,Volts
+13,Motion & Drive System,Speed Feedback Error,ความเร็ว ผิดปกติ,Timestamp,2026-04-22 19:30:10,DateTime,yyyy-MM-dd HH:mm:ss
+13,Motion & Drive System,Speed Feedback Error,ความเร็ว ผิดปกติ,Current_Velocity_ms,0.5,Float,m/s
+13,Motion & Drive System,Speed Feedback Error,ความเร็ว ผิดปกติ,Expected_Velocity_ms,1.0,Float,m/s
+13,Motion & Drive System,Speed Feedback Error,ความเร็ว ผิดปกติ,NodeRed_MS_Velocity,0.45,Float,m/s
+14,Battery & Charging,Battery Low,แบตเตอรี่ต่ำ,Timestamp,2026-04-22 20:00:33,DateTime,yyyy-MM-dd HH:mm:ss
+14,Battery & Charging,Battery Low,แบตเตอรี่ต่ำ,Battery_Percentage,28,Integer,%
+14,Battery & Charging,Battery Low,แบตเตอรี่ต่ำ,Voltage_V,24.5,Float,Volts
+14,Battery & Charging,Battery Low,แบตเตอรี่ต่ำ,Current_A,12.3,Float,Amperes
+14,Battery & Charging,Battery Low,แบตเตอรี่ต่ำ,Threshold_Percentage,30,Integer,%
+15,Battery & Charging,Battery Critical,แบตเตอรี่ต่ำระดับวิกฤต,Timestamp,2026-04-22 20:30:15,DateTime,yyyy-MM-dd HH:mm:ss
+15,Battery & Charging,Battery Critical,แบตเตอรี่ต่ำระดับวิกฤต,Battery_Percentage,8,Integer,%
+15,Battery & Charging,Battery Critical,แบตเตอรี่ต่ำระดับวิกฤต,Voltage_V,19.2,Float,Volts
+15,Battery & Charging,Battery Critical,แบตเตอรี่ต่ำระดับวิกฤต,Current_A,5.1,Float,Amperes
+15,Battery & Charging,Battery Critical,แบตเตอรี่ต่ำระดับวิกฤต,Dock_Charging_Cycle,5,Integer,cycle
+16,Battery & Charging,Charging Current Abnormal,Current ผิดปกติ,Timestamp,2026-04-22 21:00:45,DateTime,yyyy-MM-dd HH:mm:ss
+16,Battery & Charging,Charging Current Abnormal,Current ผิดปกติ,Current_A,25.5,Float,Amperes
+16,Battery & Charging,Charging Current Abnormal,Current ผิดปกติ,Expected_Current_Min_A,15,Float,Amperes
+16,Battery & Charging,Charging Current Abnormal,Current ผิดปกติ,Expected_Current_Max_A,20,Float,Amperes
+16,Battery & Charging,Charging Current Abnormal,Current ผิดปกติ,Voltage_V,28.0,Float,Volts
+17,Battery & Charging,Battery Communication Docking Error,Battery Communication Docking Error,Timestamp,2026-04-22 21:15:20,DateTime,yyyy-MM-dd HH:mm:ss
+17,Battery & Charging,Battery Communication Docking Error,Battery Communication Docking Error,Timeout_ms,5000,Integer,milliseconds
+17,Battery & Charging,Battery Communication Docking Error,Battery Communication Docking Error,Retry_Loop_Count,3,Integer,times
+17,Battery & Charging,Battery Communication Docking Error,Battery Communication Docking Error,Communication_Status,TIMEOUT,String,Status
+18,Battery & Charging,Power Supply Voltage Drop,Power Supply Voltage Drop,Timestamp,2026-04-22 21:45:33,DateTime,yyyy-MM-dd HH:mm:ss
+18,Battery & Charging,Power Supply Voltage Drop,Power Supply Voltage Drop,Current_Voltage_V,22.5,Float,Volts
+18,Battery & Charging,Power Supply Voltage Drop,Power Supply Voltage Drop,Normal_Voltage_Min_V,24.0,Float,Volts
+18,Battery & Charging,Power Supply Voltage Drop,Power Supply Voltage Drop,Normal_Voltage_Max_V,28.0,Float,Volts
+18,Battery & Charging,Power Supply Voltage Drop,Power Supply Voltage Drop,Docking_Status,DOCKING,String,Status
+19,Battery & Charging,Auto Charging Failed,การชาร์จอัตโนมัติล้มเหลว,Timestamp,2026-04-22 22:00:10,DateTime,yyyy-MM-dd HH:mm:ss
+19,Battery & Charging,Auto Charging Failed,การชาร์จอัตโนมัติล้มเหลว,Charge_Type,AUTO,String,AUTO/MANUAL
+19,Battery & Charging,Auto Charging Failed,การชาร์จอัตโนมัติล้มเหลว,Dock_Status,DOCK_NOT_FOUND,String,Status
+19,Battery & Charging,Auto Charging Failed,การชาร์จอัตโนมัติล้มเหลว,Retry_Count,5,Integer,times
+20,Sensor & Vision,Lidar Fault,Lidar ขัดข้อง,Timestamp,2026-04-22 22:30:45,DateTime,yyyy-MM-dd HH:mm:ss
+20,Sensor & Vision,Lidar Fault,Lidar ขัดข้อง,Lidar_Status_Code,ERROR_COMM,String,Error code
+20,Sensor & Vision,Lidar Fault,Lidar ขัดข้อง,Error_Details,Communication_Timeout,String,Error description
+20,Sensor & Vision,Lidar Fault,Lidar ขัดข้อง,Realtime_Check_Data,NO_RESPONSE,String,RESPONDING/NO_RESPONSE
+21,Sensor & Vision,Camera Offline,กล้องไม่ทำงาน,Timestamp,2026-04-22 23:00:15,DateTime,yyyy-MM-dd HH:mm:ss
+21,Sensor & Vision,Camera Offline,กล้องไม่ทำงาน,Camera_Status,OFFLINE,String,ONLINE/OFFLINE
+21,Sensor & Vision,Camera Offline,กล้องไม่ทำงาน,Last_Frame_Timestamp,2026-04-22 22:55:10,DateTime,yyyy-MM-dd HH:mm:ss
+21,Sensor & Vision,Camera Offline,กล้องไม่ทำงาน,Error_Code,CAM_ERR_001,String,Error code
+22,Sensor & Vision,IMU Error,เซนเซอร์IMU Error,Timestamp,2026-04-22 23:15:30,DateTime,yyyy-MM-dd HH:mm:ss
+22,Sensor & Vision,IMU Error,เซนเซอร์IMU Error,IMU_Status_Code,ERROR_001,String,Error code
+22,Sensor & Vision,IMU Error,เซนเซอร์IMU Error,Acceleration_X,9.8,Float,m/s²
+22,Sensor & Vision,IMU Error,เซนเซอร์IMU Error,Acceleration_Y,0.2,Float,m/s²
+22,Sensor & Vision,IMU Error,เซนเซอร์IMU Error,Acceleration_Z,0.1,Float,m/s²
+23,Sensor & Vision,Proximity Sensor Fault,เซนเซอร์ Proximity Senso Error,Timestamp,2026-04-23 00:00:10,DateTime,yyyy-MM-dd HH:mm:ss
+23,Sensor & Vision,Proximity Sensor Fault,เซนเซอร์ Proximity Senso Error,Sensor_Status,FAULT,String,OK/FAULT
+23,Sensor & Vision,Proximity Sensor Fault,เซนเซอร์ Proximity Senso Error,Lift_Dolly_Proximity,0.05,Float,meters
+23,Sensor & Vision,Proximity Sensor Fault,เซนเซอร์ Proximity Senso Error,Distance_Reading,0.0,Float,meters
+24,IO / Electrical Alarm,IO Module Offline,โมดูล IO ออฟไลน์,Timestamp,2026-04-23 00:30:45,DateTime,yyyy-MM-dd HH:mm:ss
+24,IO / Electrical Alarm,IO Module Offline,โมดูล IO ออฟไลน์,Module_ID,IO_MODULE_01,String,Module ID
+24,IO / Electrical Alarm,IO Module Offline,โมดูล IO ออฟไลน์,Connection_Status,OFFLINE,String,ONLINE/OFFLINE
+24,IO / Electrical Alarm,IO Module Offline,โมดูล IO ออฟไลน์,Last_Heartbeat,2026-04-23 00:25:30,DateTime,yyyy-MM-dd HH:mm:ss
+25,IO / Electrical Alarm,Encoder Power Lost,Encoder Power Lost,Timestamp,2026-04-23 01:00:15,DateTime,yyyy-MM-dd HH:mm:ss
+25,IO / Electrical Alarm,Encoder Power Lost,Encoder Power Lost,Motor_ID,MOTOR_LEFT_DRIVE,String,Motor ID
+25,IO / Electrical Alarm,Encoder Power Lost,Encoder Power Lost,Power_Status,LOST,String,OK/LOST
+25,IO / Electrical Alarm,Encoder Power Lost,Encoder Power Lost,Drive_Motor_Feedback,0.0,Float,Volts
+26,Task / Mission,Lifter Failed,Lifter ยกงานไม่ได้,Timestamp,2026-04-23 01:15:20,DateTime,yyyy-MM-dd HH:mm:ss
+26,Task / Mission,Lifter Failed,Lifter ยกงานไม่ได้,Lift_Auto_Check_Result,FAILED,String,SUCCESS/FAILED
+26,Task / Mission,Lifter Failed,Lifter ยกงานไม่ได้,Current_Height,0.0,Float,meters
+26,Task / Mission,Lifter Failed,Lifter ยกงานไม่ได้,Motor_Status,ERROR,String,OK/ERROR
+27,Software & Controller,Disk Full,ดิสก์เต็ม,Timestamp,2026-04-23 02:00:33,DateTime,yyyy-MM-dd HH:mm:ss
+27,Software & Controller,Disk Full,ดิสก์เต็ม,Disk_Usage_Percent,99.5,Float,%
+27,Software & Controller,Disk Full,ดิสก์เต็ม,Available_Space_GB,0.1,Float,GB
+27,Software & Controller,Disk Full,ดิสก์เต็ม,Partition_Info,/dev/sda1,String,Device path
+28,Software & Controller,Parameter Out of Range,พารามิเตอร์เกินควบคุม,Timestamp,2026-04-23 02:15:45,DateTime,yyyy-MM-dd HH:mm:ss
+28,Software & Controller,Parameter Out of Range,พารามิเตอร์เกินควบคุม,Parameter_Name,MAX_SPEED,String,Parameter name
+28,Software & Controller,Parameter Out of Range,พารามิเตอร์เกินควบคุม,Current_Value,2.5,Float,Value
+28,Software & Controller,Parameter Out of Range,พารามิเตอร์เกินควบคุม,Valid_Range_Min,0.5,Float,Value
+28,Software & Controller,Parameter Out of Range,พารามิเตอร์เกินควบคุม,Valid_Range_Max,1.5,Float,Value
+29,Software & Controller,CPU Overload,CPUOverload,Timestamp,2026-04-23 03:00:10,DateTime,yyyy-MM-dd HH:mm:ss
+29,Software & Controller,CPU Overload,CPUOverload,CPU_Usage_Percent,95.2,Float,%
+29,Software & Controller,CPU Overload,CPUOverload,Load_Average,8.5,Float,Average
+29,Software & Controller,CPU Overload,CPUOverload,Temperature_C,72.3,Float,Celsius
+30,Software & Controller,Unexpected Reboot,ระบบรีสตาร์ทผิดปกติ,Timestamp,2026-04-23 03:30:20,DateTime,yyyy-MM-dd HH:mm:ss
+30,Software & Controller,Unexpected Reboot,ระบบรีสตาร์ทผิดปกติ,Reboot_Reason,KERNEL_PANIC,String,Reason
+30,Software & Controller,Unexpected Reboot,ระบบรีสตาร์ทผิดปกติ,PC_Shutdown_Log,SHUTDOWN_20260423_033015.log,String,filename
+30,Software & Controller,Unexpected Reboot,ระบบรีสตาร์ทผิดปกติ,Last_Boot_Log,BOOT_20260423_033020.log,String,filename
+31,Maintenance & Warning,Preventive Maintenance Due,ถึงกำหนดบำรุงรักษา,Timestamp,2026-04-23 04:00:45,DateTime,yyyy-MM-dd HH:mm:ss
+31,Maintenance & Warning,Preventive Maintenance Due,ถึงกำหนดบำรุงรักษา,Maintenance_Schedule,SCHEDULE_ID_001,String,Schedule ID
+31,Maintenance & Warning,Preventive Maintenance Due,ถึงกำหนดบำรุงรักษา,Days_Remaining,0,Integer,days
+31,Maintenance & Warning,Preventive Maintenance Due,ถึงกำหนดบำรุงรักษา,Operator_Info,OP_001_JOHN,String,Operator ID
+32,Maintenance & Warning,Battery Lifetime Warning,ถึงกำหนดเปลี่ยนแบต,Timestamp,2026-04-23 04:30:15,DateTime,yyyy-MM-dd HH:mm:ss
+32,Maintenance & Warning,Battery Lifetime Warning,ถึงกำหนดเปลี่ยนแบต,Charge_Cycle_Count,850,Integer,cycles
+32,Maintenance & Warning,Battery Lifetime Warning,ถึงกำหนดเปลี่ยนแบต,Total_Cycles_Limit,1000,Integer,cycles
+32,Maintenance & Warning,Battery Lifetime Warning,ถึงกำหนดเปลี่ยนแบต,Percent_Lifetime_Used,85,Integer,%
+33,Maintenance & Warning,Motor Lifetime Warning,ถึงกำหนดเปลี่ยนมอเตอร์,Timestamp,2026-04-23 05:00:30,DateTime,yyyy-MM-dd HH:mm:ss
+33,Maintenance & Warning,Motor Lifetime Warning,ถึงกำหนดเปลี่ยนมอเตอร์,Runtime_Hours,4750,Integer,hours
+33,Maintenance & Warning,Motor Lifetime Warning,ถึงกำหนดเปลี่ยนมอเตอร์,Total_Hour_Limit,5000,Integer,hours
+33,Maintenance & Warning,Motor Lifetime Warning,ถึงกำหนดเปลี่ยนมอเตอร์,Request_Status,PENDING,String,Status
+34,Maintenance & Warning,Repeated Same Alarm,เกิด Alarm เดิมซ้ำบ่อย,Timestamp,2026-04-23 05:30:45,DateTime,yyyy-MM-dd HH:mm:ss
+34,Maintenance & Warning,Repeated Same Alarm,เกิด Alarm เดิมซ้ำบ่อย,Alarm_ID,1,Integer,ID
+34,Maintenance & Warning,Repeated Same Alarm,เกิด Alarm เดิมซ้ำบ่อย,Occurrence_Count,15,Integer,times
+34,Maintenance & Warning,Repeated Same Alarm,เกิด Alarm เดิมซ้ำบ่อย,Time_Period_Day,1,Integer,day
+34,Maintenance & Warning,Repeated Same Alarm,เกิด Alarm เดิมซ้ำบ่อย,Threshold_Per_Day,10,Integer,times

@@ -1,0 +1,740 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Navbar from './components/Navbar';
+import AlarmTimeChart from './components/AlarmTimeChart';
+import AlarmMonthlyChart from './components/AlarmMonthlyChart';
+
+interface DataField {
+  name: string;
+  mockValue: string;
+  description: string;
+}
+
+interface Alarm {
+  id: number;
+  category: string;
+  alarmNameEN: string;
+  alarmNameTH: string;
+  occurrenceCount: number;
+  ledColor: string;
+  motorControl: string;
+  dataFields: DataField[];
+}
+
+interface MaintenanceAlarm extends Alarm {
+  description: string;
+  solutions: string[];
+  triggerCondition: string;
+}
+
+const allAlarms: Alarm[] = [
+  { id: 1, category: 'Safety & Compliance', alarmNameEN: 'Emergency Stop Activated', alarmNameTH: 'ปุ่มหยุดฉุกเฉินถูกกด', occurrenceCount: 12, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 15:45:23', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'IO_Status', mockValue: 'TRIGGERED', description: 'สถานะ IO ของปุ่ม E-Stop' },
+    { name: 'Button_State', mockValue: '1 (Pressed)', description: 'สถานะปุ่ม: 0=ปกติ, 1=กด' },
+    { name: 'CSV_Log_File', mockValue: 'estop_20260422.csv', description: 'ไฟล์ log ที่บันทึก' },
+  ]},
+  { id: 2, category: 'Safety & Compliance', alarmNameEN: 'Safety Scanner Triggered', alarmNameTH: 'เซฟตี้สแกนเนอร์ทำงาน', occurrenceCount: 76, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 14:32:10', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Lidar_Status_Code', mockValue: '0x03', description: 'รหัสสถานะ Lidar Safety' },
+    { name: 'Error_Code', mockValue: 'ZONE_1_BREACH', description: 'รหัส Error ที่เกิด' },
+    { name: 'Detection_Zone', mockValue: 'Zone A (Front)', description: 'โซนที่ตรวจพบ' },
+  ]},
+  { id: 3, category: 'Safety & Compliance', alarmNameEN: 'Safety Zone Violation', alarmNameTH: 'ละเมิดเขตความปลอดภัย', occurrenceCount: 34, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 10:15:44', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Wall_Zone_Coordinates', mockValue: 'X:2.5, Y:3.1', description: 'พิกัดขอบเขตโซน' },
+    { name: 'Robot_Pose_X', mockValue: '2.48 m', description: 'ตำแหน่ง X ของหุ่น' },
+    { name: 'Robot_Pose_Y', mockValue: '3.09 m', description: 'ตำแหน่ง Y ของหุ่น' },
+    { name: 'Robot_Pose_Theta', mockValue: '45.2°', description: 'มุมหัวหุ่น' },
+  ]},
+  { id: 4, category: 'Safety & Compliance', alarmNameEN: 'Reduced Speed Zone Violation', alarmNameTH: 'ละเมิดโซนจำกัดความเร็ว', occurrenceCount: 21, ledColor: 'RED', motorControl: 'RUNNING', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 09:50:02', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Speed_Zone_Coordinates', mockValue: 'Zone B (Aisle 3)', description: 'โซนจำกัดความเร็ว' },
+    { name: 'Robot_Pose_X', mockValue: '5.12 m', description: 'ตำแหน่ง X ของหุ่น' },
+    { name: 'Current_Speed', mockValue: '0.72 m/s', description: 'ความเร็วปัจจุบัน' },
+    { name: 'Zone_Speed_Limit', mockValue: '0.50 m/s', description: 'ความเร็วสูงสุดที่อนุญาต' },
+  ]},
+  { id: 5, category: 'Localization & Mapping', alarmNameEN: 'Lost Localization', alarmNameTH: 'ไม่สามารถระบุตำแหน่งได้', occurrenceCount: 45, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-21 16:22:30', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'AMCL_Pose_Available', mockValue: 'FALSE', description: 'สถานะ AMCL Pose' },
+    { name: 'Pose_Uncertainty', mockValue: '2.34 m', description: 'ค่าความไม่แน่นอนของตำแหน่ง' },
+    { name: 'Last_Valid_Position', mockValue: 'X:4.1 Y:2.7', description: 'ตำแหน่งสุดท้ายที่ถูกต้อง' },
+    { name: 'Log_File', mockValue: 'localization_20260421.log', description: 'ไฟล์ log' },
+  ]},
+  { id: 6, category: 'Localization & Mapping', alarmNameEN: 'Localization Accuracy Low', alarmNameTH: 'ความแม่นยำของตำแหน่งต่ำ', occurrenceCount: 156, ledColor: 'RED', motorControl: 'RUNNING', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 11:04:18', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Current_Pose_Accuracy', mockValue: '0.85 m', description: 'ค่าความแม่นยำปัจจุบัน' },
+    { name: 'Threshold_Value', mockValue: '0.50 m', description: 'ค่า threshold ที่ยอมรับได้' },
+    { name: 'Occurrence_Count', mockValue: '12 ครั้ง', description: 'จำนวนครั้งที่เกิดวันนี้' },
+  ]},
+  { id: 7, category: 'Localization & Mapping', alarmNameEN: 'Map Mismatch', alarmNameTH: 'แผนที่ไม่ตรงกับหน้างาน', occurrenceCount: 18, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-20 08:35:55', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Current_Map_ID', mockValue: 'map_v3.2', description: 'แผนที่ที่ใช้งานอยู่' },
+    { name: 'Expected_Map_ID', mockValue: 'map_v3.5', description: 'แผนที่ที่ควรจะเป็น' },
+    { name: 'NoRed_Swap_Status', mockValue: 'PENDING', description: 'สถานะการสลับแผนที่' },
+  ]},
+  { id: 8, category: 'Localization & Mapping', alarmNameEN: 'Marker / QR / RFID Not Found', alarmNameTH: 'ไม่พบ Marker / QR / RFID', occurrenceCount: 87, ledColor: 'RED', motorControl: 'RUNNING', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 13:55:40', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Expected_Marker_ID', mockValue: 'QR_DOCK_03', description: 'ID ของ Marker ที่ต้องการ' },
+    { name: 'Dock_Log_File', mockValue: 'dock_log_20260422.csv', description: 'ไฟล์ log การ dock' },
+    { name: 'Scan_Attempts', mockValue: '5 ครั้ง', description: 'จำนวนครั้งที่พยายาม scan' },
+  ]},
+  { id: 9, category: 'Localization & Mapping', alarmNameEN: 'Re-localization Failed', alarmNameTH: 'ระบุตำแหน่งใหม่ไม่สำเร็จ', occurrenceCount: 29, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-21 17:10:25', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Lift_Reset_Status', mockValue: 'NOT_RESET', description: 'สถานะการ reset Lift' },
+    { name: 'Retry_Count', mockValue: '3 ครั้ง', description: 'จำนวนการลองใหม่' },
+    { name: 'Log_File', mockValue: 'relocal_20260421.log', description: 'ไฟล์ log' },
+  ]},
+  { id: 10, category: 'Navigation & Path Control', alarmNameEN: 'Path Blocked', alarmNameTH: 'เส้นทางถูกกีดขวาง', occurrenceCount: 143, ledColor: 'RED', motorControl: 'RUNNING', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 14:20:05', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Path_Coordinates', mockValue: 'X:6.3 Y:1.8 → X:8.0 Y:1.8', description: 'เส้นทางที่ถูกขวาง' },
+    { name: 'Goal_Coordinates', mockValue: 'X:10.2 Y:1.8', description: 'เป้าหมายปลายทาง' },
+    { name: 'MoveBase_Status', mockValue: 'ABORTED', description: 'สถานะ MoveBase' },
+    { name: 'Obstacle_Detection', mockValue: '0.35 m (ด้านหน้า)', description: 'ระยะสิ่งกีดขวาง' },
+  ]},
+  { id: 11, category: 'Motion & Drive System', alarmNameEN: 'Motor Overtemperature', alarmNameTH: 'มอเตอร์ร้อนเกิน', occurrenceCount: 134, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 12:48:33', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Current_Temperature_C', mockValue: '78.5 °C', description: 'อุณหภูมิมอเตอร์ปัจจุบัน' },
+    { name: 'Temperature_Threshold', mockValue: '75.0 °C', description: 'ค่า threshold ที่กำหนด' },
+    { name: 'Error_Status_Code', mockValue: '0x12 (OVER_TEMP)', description: 'รหัส Error' },
+  ]},
+  { id: 12, category: 'Motion & Drive System', alarmNameEN: 'Drive Enable Fail', alarmNameTH: 'Drive Disable', occurrenceCount: 41, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-21 09:12:44', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Drive_Status_Code', mockValue: '0x05 (DISABLED)', description: 'รหัสสถานะ Drive' },
+    { name: 'Error_Details', mockValue: 'Enable signal lost', description: 'รายละเอียด Error' },
+    { name: 'Voltage_Reading', mockValue: '23.4 V', description: 'แรงดันไฟที่วัดได้' },
+  ]},
+  { id: 13, category: 'Motion & Drive System', alarmNameEN: 'Speed Feedback Error', alarmNameTH: 'ความเร็ว ผิดปกติ', occurrenceCount: 189, ledColor: 'RED', motorControl: 'RUNNING', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 15:30:12', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Current_Velocity_ms', mockValue: '0.45 m/s', description: 'ความเร็วที่วัดได้จริง' },
+    { name: 'Expected_Velocity_ms', mockValue: '0.50 m/s', description: 'ความเร็วที่คาดหวัง' },
+    { name: 'NodeRed_MS_Velocity', mockValue: '0.50 m/s', description: 'ค่าจาก Node-RED' },
+  ]},
+  { id: 14, category: 'Battery & Charging', alarmNameEN: 'Battery Low', alarmNameTH: 'แบตเตอรี่ต่ำ', occurrenceCount: 245, ledColor: 'YELLOW', motorControl: 'RUNNING', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 16:05:50', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Battery_Percentage', mockValue: '28 %', description: 'เปอร์เซ็นต์แบต' },
+    { name: 'Voltage_V', mockValue: '22.8 V', description: 'แรงดันแบตเตอรี่' },
+    { name: 'Current_A', mockValue: '2.3 A', description: 'กระแสไฟ' },
+    { name: 'Threshold_30Percent', mockValue: '30 %', description: 'ค่า threshold' },
+  ]},
+  { id: 15, category: 'Battery & Charging', alarmNameEN: 'Battery Critical', alarmNameTH: 'แบตเตอรี่ต่ำระดับวิกฤต', occurrenceCount: 98, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 17:45:20', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Battery_Percentage', mockValue: '12 %', description: 'เปอร์เซ็นต์แบต' },
+    { name: 'Voltage_V', mockValue: '21.2 V', description: 'แรงดันแบตเตอรี่' },
+    { name: 'Current_A', mockValue: '1.8 A', description: 'กระแสไฟ' },
+    { name: 'Dock_Charging_Cycle', mockValue: 'Cycle #847', description: 'รอบการชาร์จปัจจุบัน' },
+  ]},
+  { id: 16, category: 'Battery & Charging', alarmNameEN: 'Charging Current Abnormal', alarmNameTH: 'Current ผิดปกติ', occurrenceCount: 33, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-20 22:10:05', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Current_A', mockValue: '8.5 A', description: 'กระแสชาร์จที่วัดได้' },
+    { name: 'Expected_Current_Range', mockValue: '3.0 – 5.0 A', description: 'ช่วงกระแสปกติ' },
+    { name: 'Voltage_V', mockValue: '25.6 V', description: 'แรงดันขณะชาร์จ' },
+  ]},
+  { id: 17, category: 'Battery & Charging', alarmNameEN: 'Battery Communication Docking Error', alarmNameTH: 'Battery Communication Error', occurrenceCount: 27, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-19 23:55:30', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Timeout_ms', mockValue: '5000 ms', description: 'ระยะเวลา timeout' },
+    { name: 'Retry_Loop_Count', mockValue: '3 ครั้ง', description: 'จำนวน retry' },
+    { name: 'Communication_Status', mockValue: 'FAILED', description: 'สถานะการสื่อสาร' },
+  ]},
+  { id: 18, category: 'Battery & Charging', alarmNameEN: 'Power Supply Voltage Drop', alarmNameTH: 'Power Supply Voltage Drop', occurrenceCount: 15, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-18 14:33:00', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Current_Voltage_V', mockValue: '20.1 V', description: 'แรงดันปัจจุบัน' },
+    { name: 'Normal_Voltage_Range', mockValue: '23.0 – 25.2 V', description: 'ช่วงแรงดันปกติ' },
+    { name: 'Docking_Status', mockValue: 'DOCKED', description: 'สถานะการ dock' },
+  ]},
+  { id: 19, category: 'Battery & Charging', alarmNameEN: 'Auto Charging Failed', alarmNameTH: 'การชาร์จอัตโนมัติล้มเหลว', occurrenceCount: 52, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 21:05:15', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Charge_Type_AUTO', mockValue: 'AUTO', description: 'ประเภทการชาร์จ' },
+    { name: 'Dock_Status', mockValue: 'MISALIGNED', description: 'สถานะ dock' },
+    { name: 'Retry_Count', mockValue: '5 ครั้ง', description: 'จำนวนการลองใหม่' },
+  ]},
+  { id: 20, category: 'Sensor & Vision', alarmNameEN: 'Lidar Fault', alarmNameTH: 'Lidar ขัดข้อง', occurrenceCount: 167, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 10:22:18', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Lidar_Status_Code', mockValue: '0x0F (FAULT)', description: 'รหัสสถานะ Lidar' },
+    { name: 'Error_Details', mockValue: 'Scan timeout exceeded', description: 'รายละเอียด Error' },
+    { name: 'Realtime_Check_Data', mockValue: 'NULL', description: 'ข้อมูล realtime check' },
+  ]},
+  { id: 21, category: 'Sensor & Vision', alarmNameEN: 'Camera Offline', alarmNameTH: 'กล้องไม่ทำงาน', occurrenceCount: 38, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-21 11:40:08', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Camera_Status', mockValue: 'OFFLINE', description: 'สถานะกล้อง' },
+    { name: 'Last_Frame_Timestamp', mockValue: '2026-04-21 11:39:55', description: 'เวลา frame สุดท้าย' },
+    { name: 'Error_Code', mockValue: '0x07 (NO_SIGNAL)', description: 'รหัส Error' },
+  ]},
+  { id: 22, category: 'Sensor & Vision', alarmNameEN: 'IMU Error', alarmNameTH: 'เซนเซอร์ IMU Error', occurrenceCount: 22, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-20 13:15:42', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'IMU_Status_Code', mockValue: '0x02 (CALIB_ERR)', description: 'รหัสสถานะ IMU' },
+    { name: 'Acceleration_X', mockValue: '0.12 m/s²', description: 'ความเร่งแกน X' },
+    { name: 'Acceleration_Y', mockValue: '-0.05 m/s²', description: 'ความเร่งแกน Y' },
+    { name: 'Acceleration_Z', mockValue: '9.75 m/s²', description: 'ความเร่งแกน Z' },
+  ]},
+  { id: 23, category: 'Sensor & Vision', alarmNameEN: 'Proximity Sensor Fault', alarmNameTH: 'เซนเซอร์ Proximity Error', occurrenceCount: 44, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 09:30:55', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Sensor_Status', mockValue: 'FAULT', description: 'สถานะเซนเซอร์' },
+    { name: 'Lift_Dolly_Proximity', mockValue: 'N/A', description: 'ระยะ Lift/Dolly' },
+    { name: 'Distance_Reading', mockValue: '-1 (Error)', description: 'ค่าระยะที่อ่านได้' },
+  ]},
+  { id: 24, category: 'IO / Electrical Alarm', alarmNameEN: 'IO Module Offline', alarmNameTH: 'โมดูล IO ออฟไลน์', occurrenceCount: 19, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-19 16:48:20', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Module_ID', mockValue: 'IO_MOD_02', description: 'ID ของโมดูล IO' },
+    { name: 'Connection_Status', mockValue: 'OFFLINE', description: 'สถานะการเชื่อมต่อ' },
+    { name: 'Last_Heartbeat', mockValue: '2026-04-19 16:47:55', description: 'Heartbeat สุดท้าย' },
+  ]},
+  { id: 25, category: 'IO / Electrical Alarm', alarmNameEN: 'Encoder Power Lost', alarmNameTH: 'Encoder Power Lost', occurrenceCount: 11, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-17 10:22:35', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Motor_ID', mockValue: 'MOTOR_L', description: 'ID มอเตอร์ที่เกิด Error' },
+    { name: 'Power_Status', mockValue: '0 V (Lost)', description: 'สถานะไฟ Encoder' },
+    { name: 'Drive_Motor_Feedback', mockValue: 'NO_FEEDBACK', description: 'Feedback จาก Drive' },
+  ]},
+  { id: 26, category: 'Task / Mission', alarmNameEN: 'Lifter Failed', alarmNameTH: 'Lifter ยกงานไม่ได้', occurrenceCount: 58, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 13:05:30', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Lift_Auto_Check_Result', mockValue: 'FAIL', description: 'ผลการตรวจสอบ Lift' },
+    { name: 'Current_Height', mockValue: '0.05 m', description: 'ความสูงปัจจุบัน' },
+    { name: 'Motor_Status', mockValue: 'STALLED', description: 'สถานะมอเตอร์ Lift' },
+  ]},
+  { id: 27, category: 'Software & Controller', alarmNameEN: 'Disk Full', alarmNameTH: 'ดิสก์เต็ม', occurrenceCount: 9, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-15 03:10:00', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Disk_Usage_Percent', mockValue: '97.8 %', description: 'การใช้งาน disk' },
+    { name: 'Available_Space_GB', mockValue: '0.5 GB', description: 'พื้นที่คงเหลือ' },
+    { name: 'Partition_Info', mockValue: '/dev/sda1 (Root)', description: 'พาร์ติชันที่เต็ม' },
+  ]},
+  { id: 28, category: 'Software & Controller', alarmNameEN: 'Parameter Out of Range', alarmNameTH: 'พารามิเตอร์เกินควบคุม', occurrenceCount: 16, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-18 11:30:45', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Parameter_Name', mockValue: 'max_linear_vel', description: 'ชื่อพารามิเตอร์' },
+    { name: 'Current_Value', mockValue: '1.25 m/s', description: 'ค่าปัจจุบัน' },
+    { name: 'Valid_Range', mockValue: '0.0 – 1.0 m/s', description: 'ช่วงค่าที่ยอมรับ' },
+  ]},
+  { id: 29, category: 'Software & Controller', alarmNameEN: 'CPU Overload', alarmNameTH: 'CPU Overload', occurrenceCount: 24, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 08:55:10', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'CPU_Usage_Percent', mockValue: '96.2 %', description: 'การใช้งาน CPU' },
+    { name: 'Load_Average', mockValue: '7.82 (1-min avg)', description: 'ค่า Load Average' },
+    { name: 'Temperature_C', mockValue: '88.5 °C', description: 'อุณหภูมิ CPU' },
+  ]},
+  { id: 30, category: 'Software & Controller', alarmNameEN: 'Unexpected Reboot', alarmNameTH: 'ระบบรีสตาร์ทผิดปกติ', occurrenceCount: 7, ledColor: 'RED', motorControl: 'STOPPED', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-10 04:22:00', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Reboot_Reason', mockValue: 'Kernel Panic', description: 'สาเหตุการรีบูต' },
+    { name: 'PC_Shutdown_Log', mockValue: 'shutdown_20260410.log', description: 'ไฟล์ log การปิดระบบ' },
+    { name: 'Last_Boot_Log', mockValue: 'boot_20260410_042205.log', description: 'ไฟล์ log การบูต' },
+  ]},
+  { id: 31, category: 'Maintenance & Warning', alarmNameEN: 'Preventive Maintenance Due', alarmNameTH: 'ถึงกำหนดบำรุงรักษา', occurrenceCount: 65, ledColor: 'YELLOW', motorControl: 'RUNNING', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 07:00:00', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Maintenance_Schedule', mockValue: 'PM-2026-Q2', description: 'ตารางบำรุงรักษา' },
+    { name: 'Days_Remaining', mockValue: '3 วัน', description: 'วันที่เหลือก่อนถึงกำหนด' },
+    { name: 'Operator_Info', mockValue: 'Technician A', description: 'ผู้ดูแลที่รับผิดชอบ' },
+  ]},
+  { id: 32, category: 'Maintenance & Warning', alarmNameEN: 'Battery Lifetime Warning', alarmNameTH: 'ถึงกำหนดเปลี่ยนแบต', occurrenceCount: 42, ledColor: 'YELLOW', motorControl: 'RUNNING', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 07:00:00', description: 'เวลาที่ Alarm เกิด (ขณะชาร์จ Dock)' },
+    { name: 'Charge_Cycle_Count', mockValue: '920 cycles', description: 'จำนวนรอบชาร์จปัจจุบัน' },
+    { name: 'Total_Cycles_Limit', mockValue: '1000 cycles', description: 'จำนวนรอบสูงสุด' },
+    { name: 'Percent_Lifetime_Used', mockValue: '92 %', description: 'อายุการใช้งานที่ใช้ไปแล้ว' },
+    { name: 'Pack_Voltage_V', mockValue: '25.6 V', description: 'แรงดันรวมของ Battery Pack' },
+    { name: 'Cell_1_Voltage_V', mockValue: '3.21 V', description: 'แรงดัน Cell 1' },
+    { name: 'Cell_2_Voltage_V', mockValue: '3.20 V', description: 'แรงดัน Cell 2' },
+    { name: 'Cell_3_Voltage_V', mockValue: '3.18 V', description: 'แรงดัน Cell 3' },
+    { name: 'Cell_4_Voltage_V', mockValue: '3.22 V', description: 'แรงดัน Cell 4' },
+    { name: 'Cell_5_Voltage_V', mockValue: '3.19 V', description: 'แรงดัน Cell 5' },
+    { name: 'Cell_6_Voltage_V', mockValue: '3.20 V', description: 'แรงดัน Cell 6' },
+    { name: 'Cell_7_Voltage_V', mockValue: '3.17 V', description: 'แรงดัน Cell 7 (ต่ำสุด)' },
+    { name: 'Cell_Delta_V', mockValue: '0.05 V', description: 'ความต่างแรงดันระหว่าง Cell สูงสุด-ต่ำสุด' },
+  ]},
+  { id: 33, category: 'Maintenance & Warning', alarmNameEN: 'Motor Lifetime Warning', alarmNameTH: 'ถึงกำหนดเปลี่ยนมอเตอร์', occurrenceCount: 28, ledColor: 'YELLOW', motorControl: 'RUNNING', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 07:00:00', description: 'เวลาที่ Alarm เกิด (ขณะชาร์จ Dock)' },
+    { name: 'Runtime_Hours', mockValue: '8,750 ชม.', description: 'ชั่วโมงรันมอเตอร์สะสม' },
+    { name: 'Total_Hour_Limit', mockValue: '10,000 ชม.', description: 'ชั่วโมงสูงสุดที่กำหนด' },
+    { name: 'Request_Status', mockValue: 'PENDING REQUEST', description: 'สถานะการขอเปลี่ยน' },
+  ]},
+  { id: 34, category: 'Maintenance & Warning', alarmNameEN: 'Repeated Same Alarm', alarmNameTH: 'เกิด Alarm เดิมซ้ำบ่อย', occurrenceCount: 19, ledColor: 'YELLOW', motorControl: 'RUNNING', dataFields: [
+    { name: 'Timestamp', mockValue: '2026-04-22 18:30:00', description: 'เวลาที่ Alarm เกิด' },
+    { name: 'Alarm_ID', mockValue: '14 (Battery Low)', description: 'Alarm ID ที่เกิดซ้ำ' },
+    { name: 'Occurrence_Count', mockValue: '14 ครั้ง', description: 'จำนวนครั้งที่เกิดวันนี้' },
+    { name: 'Time_Period_Day', mockValue: '2026-04-22 (วันนี้)', description: 'ช่วงเวลาที่นับ' },
+    { name: 'Threshold_10_Per_Day', mockValue: '10 ครั้ง/วัน', description: 'ค่า threshold' },
+  ]},
+];
+
+const topAlarms: Alarm[] = [...allAlarms]
+  .filter((a) => a.category !== 'Maintenance & Warning')
+  .sort((a, b) => b.occurrenceCount - a.occurrenceCount)
+  .slice(0, 10);
+
+const maintenanceAlarms: MaintenanceAlarm[] = [
+  {
+    ...allAlarms.find((a) => a.id === 32)!,
+    description: 'Battery charge cycle is reaching its limit',
+    solutions: [
+      '"cell_1": 3.72,\n"cell_2": 3.71,\n"cell_3": 3.69,\n"cell_4": 3.70,\n"cell_5": 3.68,\n"cell_6": 3.72,\n"cell_7": 3.70,\n"cell_8": 3.71',
+    ],
+    triggerCondition: 'Alarm triggers when charging at dock only — LED Yellow',
+  },
+  {
+    ...allAlarms.find((a) => a.id === 33)!,
+    description: 'Motor runtime hours are reaching the operational limit',
+    solutions: [
+      '"motor_1": 1250 km,',
+    ],
+    triggerCondition: 'Alarm triggers when charging at dock only — LED Yellow',
+  },
+  {
+    ...allAlarms.find((a) => a.id === 34)!,
+    description: 'Same alarm has been triggered repeatedly beyond threshold',
+    solutions: ['Investigate root cause of repeated alarm', 'Check relevant parameters and settings', 'Review and apply filter parameters', 'Contact technical support if issue persists'],
+    triggerCondition: 'More than 10 times / day — parameter filter adjustable',
+  },
+];
+
+const categoryColors: Record<string, string> = {
+  'Safety & Compliance': 'text-red-400',
+  'Localization & Mapping': 'text-orange-400',
+  'Navigation & Path Control': 'text-yellow-400',
+  'Motion & Drive System': 'text-pink-400',
+  'Battery & Charging': 'text-amber-400',
+  'Sensor & Vision': 'text-cyan-400',
+  'IO / Electrical Alarm': 'text-purple-400',
+  'Task / Mission': 'text-green-400',
+  'Software & Controller': 'text-blue-400',
+  'Maintenance & Warning': 'text-yellow-300',
+};
+
+function LedBadge({ color }: { color: string }) {
+  if (color === 'RED')
+    return <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20"><span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />RED</span>;
+  if (color === 'YELLOW')
+    return <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20"><span className="w-1.5 h-1.5 rounded-full bg-amber-400" />YELLOW</span>;
+  return <span className="px-2 py-0.5 rounded-md text-xs font-semibold bg-zinc-800 text-zinc-400 border border-zinc-700">{color}</span>;
+}
+
+function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <div className="px-6 py-5 border-b border-[#1e1e2e]">
+      <h2 className="text-xl font-bold text-white">{title}</h2>
+      {subtitle && <p className="text-zinc-500 text-sm mt-0.5">{subtitle}</p>}
+    </div>
+  );
+}
+
+const rankColors = ['text-amber-400', 'text-zinc-300', 'text-amber-600', 'text-zinc-400', 'text-zinc-400'];
+
+function LastUpdated() {
+  const [timestamp, setTimestamp] = useState('');
+  useEffect(() => { setTimestamp(new Date().toLocaleString()); }, []);
+  return <>{timestamp}</>;
+}
+
+export default function Dashboard() {
+  const router = useRouter();
+  const [expandedMaintenance, setExpandedMaintenance] = useState<number | null>(null);
+  const [alarmSearch, setAlarmSearch] = useState('');
+
+  const filteredAllAlarms = allAlarms.filter(
+    (a) =>
+      a.id.toString().includes(alarmSearch) ||
+      a.category.toLowerCase().includes(alarmSearch.toLowerCase()) ||
+      a.alarmNameEN.toLowerCase().includes(alarmSearch.toLowerCase()) ||
+      a.alarmNameTH.includes(alarmSearch)
+  );
+
+  const totalAlarms = allAlarms.reduce((s, a) => s + a.occurrenceCount, 0);
+  const criticalCount = allAlarms.filter((a) => a.ledColor === 'RED').reduce((s, a) => s + a.occurrenceCount, 0);
+  const warningCount = allAlarms.filter((a) => a.ledColor === 'YELLOW').reduce((s, a) => s + a.occurrenceCount, 0);
+
+  return (
+    <>
+      <Navbar currentPage="dashboard" />
+      <div className="min-h-screen bg-[#07070d] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+          {/* Header */}
+          <div className="mb-8">
+            <p className="text-xs font-semibold text-cyan-500 uppercase tracking-widest mb-2">Robot Alarm System</p>
+            <h1 className="text-3xl font-bold text-white mb-1">Status Dashboard</h1>
+            <p className="text-zinc-500 text-sm">Monitor alarm frequency, patterns, and maintenance requirements</p>
+          </div>
+
+          {/* Stat Cards */}
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-2xl p-5">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Total Alarms</p>
+              <p className="text-4xl font-bold text-white">{totalAlarms.toLocaleString()}</p>
+              <p className="text-zinc-600 text-sm mt-1">34 alarm types</p>
+            </div>
+            <div className="bg-[#0d0d14] border border-red-500/10 rounded-2xl p-5">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Critical (RED)</p>
+              <p className="text-4xl font-bold text-red-400">{criticalCount.toLocaleString()}</p>
+              <p className="text-zinc-600 text-sm mt-1">Motor stopped</p>
+            </div>
+            <div className="bg-[#0d0d14] border border-amber-500/10 rounded-2xl p-5">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Warning (YELLOW)</p>
+              <p className="text-4xl font-bold text-amber-400">{warningCount.toLocaleString()}</p>
+              <p className="text-zinc-600 text-sm mt-1">Still running</p>
+            </div>
+          </div>
+
+          {/* Time Chart */}
+          <AlarmTimeChart />
+
+          {/* Monthly Chart */}
+          <AlarmMonthlyChart />
+
+          {/* Top 10 */}
+          <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-2xl overflow-hidden mb-6">
+            <SectionHeader title="Top 10 Most Frequent Alarms" subtitle="จัดอันดับจากจำนวนครั้งที่เกิดสูงสุด" />
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#1e1e2e]">
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-14">#</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-12">ID</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Category</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Alarm Name</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">ชื่อ TH</th>
+                    <th className="px-5 py-3.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider">Count</th>
+                    <th className="px-5 py-3.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider">LED</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topAlarms.map((alarm, index) => (
+                    <tr key={alarm.id} className="border-b border-[#1a1a24] hover:bg-[#16161f] transition-colors">
+                      <td className="px-5 py-4">
+                        <span className={`text-base font-black ${rankColors[index] ?? 'text-zinc-600'}`}>
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 font-mono font-bold text-zinc-300 text-sm">{alarm.id}</td>
+                      <td className="px-5 py-4 text-sm">
+                        <span className={`font-medium ${categoryColors[alarm.category] ?? 'text-zinc-400'}`}>
+                          {alarm.category}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-sm font-semibold text-white">{alarm.alarmNameEN}</td>
+                      <td className="px-5 py-4 text-sm text-zinc-400">{alarm.alarmNameTH}</td>
+                      <td className="px-5 py-4 text-center">
+                        <span className="text-lg font-bold text-white">{alarm.occurrenceCount}</span>
+                      </td>
+                      <td className="px-5 py-4 text-center">
+                        <LedBadge color={alarm.ledColor} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Alarm Reference */}
+          <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-2xl overflow-hidden mb-6">
+            <div className="px-6 py-5 border-b border-[#1e1e2e] flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <h2 className="text-xl font-bold text-white">Alarm Reference</h2>
+                <p className="text-zinc-500 text-sm mt-0.5">ข้อมูล Alarm ทั้งหมด {allAlarms.length} รายการ</p>
+              </div>
+              <div className="relative">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="ค้นหา ID / Category / Name..."
+                  value={alarmSearch}
+                  onChange={(e) => setAlarmSearch(e.target.value)}
+                  className="pl-9 pr-4 py-2 bg-[#16161f] border border-[#2a2a3a] rounded-lg text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 w-64 transition-all"
+                />
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#1e1e2e]">
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-14">ID</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Category</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Alarm Name (EN)</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">ชื่อ (TH)</th>
+                    <th className="px-5 py-3.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider w-20">LED</th>
+                    <th className="px-5 py-3.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider w-24">Data</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAllAlarms.map((alarm, i) => (
+                    <tr key={alarm.id} className={`border-b border-[#1a1a24] hover:bg-[#16161f] transition-colors ${i % 2 !== 0 ? 'bg-[#0a0a10]' : ''}`}>
+                      <td className="px-5 py-3.5 font-mono font-bold text-zinc-300 text-sm">{alarm.id}</td>
+                      <td className="px-5 py-3.5 text-sm">
+                        <span className={`font-medium ${categoryColors[alarm.category] ?? 'text-zinc-400'}`}>
+                          {alarm.category}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-sm font-semibold text-white">{alarm.alarmNameEN}</td>
+                      <td className="px-5 py-3.5 text-sm text-zinc-400">{alarm.alarmNameTH}</td>
+                      <td className="px-5 py-3.5 text-center"><LedBadge color={alarm.ledColor} /></td>
+                      <td className="px-5 py-3.5 text-center">
+                        <button
+                          onClick={() => router.push(`/logs?alarmId=${alarm.id}`)}
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20 transition-all"
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {filteredAllAlarms.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="px-5 py-12 text-center text-zinc-600">ไม่พบข้อมูล</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Maintenance & Warning */}
+          <div className="mb-8">
+            {/* Section Title */}
+            <div className="flex items-center gap-3 mb-5">
+              <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white">Maintenance & Warning</h2>
+                <p className="text-zinc-500 text-sm">แนวทางการแก้ปัญหาและเงื่อนไข Trigger</p>
+              </div>
+            </div>
+
+            {/* Row 1: ID 32 + 33 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+              {maintenanceAlarms.filter((a) => a.id !== 34).map((alarm) => {
+                const isOpen = expandedMaintenance === alarm.id;
+                const accentColor =
+                  alarm.id === 32 ? { border: 'border-amber-500/25', bg: 'bg-amber-500/5', dot: 'bg-amber-400', text: 'text-amber-300', badge: 'bg-amber-500/15 text-amber-300 border-amber-500/20' }
+                  : { border: 'border-teal-500/25', bg: 'bg-teal-500/5', dot: 'bg-teal-400', text: 'text-teal-300', badge: 'bg-teal-500/15 text-teal-300 border-teal-500/20' };
+
+                return (
+                  <div
+                    key={alarm.id}
+                    className={`rounded-2xl border overflow-hidden transition-all duration-200 ${
+                      isOpen ? `${accentColor.border} ${accentColor.bg}` : 'border-[#1e1e2e] bg-[#0d0d14] hover:border-[#2e2e3e]'
+                    }`}
+                  >
+                    {/* Card Header */}
+                    <div className="px-5 pt-5 pb-4">
+                      {/* Top row: ID badge + LED + chevron */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className={`font-mono text-xs font-bold px-2.5 py-1 rounded-lg border ${accentColor.badge}`}>
+                            ID {alarm.id}
+                          </span>
+                          <LedBadge color={alarm.ledColor} />
+                        </div>
+                        <button
+                          onClick={() => setExpandedMaintenance(isOpen ? null : alarm.id)}
+                          className="p-1.5 rounded-lg text-zinc-600 hover:text-zinc-300 hover:bg-white/5 transition"
+                        >
+                          <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* Alarm name */}
+                      <h3 className="text-base font-bold text-white leading-snug mb-0.5">{alarm.alarmNameEN}</h3>
+                      <p className="text-sm text-zinc-500">{alarm.alarmNameTH}</p>
+
+                      {/* Occurrence bar */}
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs text-zinc-600 font-medium">Occurrences this month</span>
+                          <span className={`text-sm font-bold ${accentColor.text}`}>{alarm.occurrenceCount}</span>
+                        </div>
+                        <div className="h-1.5 bg-[#1e1e2e] rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${accentColor.dot}`}
+                            style={{ width: `${Math.min(100, (alarm.occurrenceCount / 60) * 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className={`h-px mx-5 ${isOpen ? accentColor.border : 'bg-[#1a1a24]'}`} />
+
+                    {/* Trigger condition — always visible */}
+                    <button
+                      onClick={() => setExpandedMaintenance(isOpen ? null : alarm.id)}
+                      className="w-full text-left px-5 py-3 flex items-start gap-2.5"
+                    >
+                      <svg className="w-3.5 h-3.5 text-zinc-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      <p className="text-xs text-zinc-500 leading-relaxed">{alarm.triggerCondition}</p>
+                    </button>
+
+                    {/* Expanded: Description + Solutions */}
+                    {isOpen && (
+                      <div className="border-t border-[#1e1e2e] px-5 pb-5 pt-4 space-y-4">
+                        {/* Description */}
+                        <div className="flex gap-3">
+                          <div className={`w-0.5 rounded-full flex-shrink-0 ${accentColor.dot}`} />
+                          <p className="text-sm text-zinc-300 leading-relaxed">{alarm.description}</p>
+                        </div>
+
+                        {/* Solutions */}
+                        <div>
+                          <div className="space-y-2">
+                            {alarm.solutions.map((s, i) => (
+                              <div key={i} className="flex items-start gap-3">
+                                <span className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mt-0.5 ${accentColor.badge} border`}>
+                                  {i + 1}
+                                </span>
+                                <p className="text-sm text-zinc-300 leading-relaxed">{s}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Row 2: ID 34 full-width */}
+            {(() => {
+              const alarm = maintenanceAlarms.find((a) => a.id === 34)!;
+              const isOpen = expandedMaintenance === alarm.id;
+              const accentColor = { border: 'border-violet-500/25', bg: 'bg-violet-500/5', dot: 'bg-violet-400', text: 'text-violet-300', badge: 'bg-violet-500/15 text-violet-300 border-violet-500/20' };
+              return (
+                <div
+                  className={`rounded-2xl border overflow-hidden transition-all duration-200 ${
+                    isOpen ? `${accentColor.border} ${accentColor.bg}` : 'border-[#1e1e2e] bg-[#0d0d14] hover:border-[#2e2e3e]'
+                  }`}
+                >
+                  {/* Card Header */}
+                  <div className="px-5 pt-5 pb-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-mono text-xs font-bold px-2.5 py-1 rounded-lg border ${accentColor.badge}`}>
+                          ID {alarm.id}
+                        </span>
+                        <LedBadge color={alarm.ledColor} />
+                      </div>
+                      <button
+                        onClick={() => setExpandedMaintenance(isOpen ? null : alarm.id)}
+                        className="p-1.5 rounded-lg text-zinc-600 hover:text-zinc-300 hover:bg-white/5 transition"
+                      >
+                        <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="flex items-start justify-between gap-6 flex-wrap">
+                      <div>
+                        <h3 className="text-base font-bold text-white leading-snug mb-0.5">{alarm.alarmNameEN}</h3>
+                        <p className="text-sm text-zinc-500">{alarm.alarmNameTH}</p>
+                      </div>
+                      <div className="flex-1 min-w-40 max-w-xs">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs text-zinc-600 font-medium">Occurrences this month</span>
+                          <span className={`text-sm font-bold ${accentColor.text}`}>{alarm.occurrenceCount}</span>
+                        </div>
+                        <div className="h-1.5 bg-[#1e1e2e] rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${accentColor.dot}`}
+                            style={{ width: `${Math.min(100, (alarm.occurrenceCount / 60) * 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`h-px mx-5 ${isOpen ? accentColor.border : 'bg-[#1a1a24]'}`} />
+
+                  <button
+                    onClick={() => setExpandedMaintenance(isOpen ? null : alarm.id)}
+                    className="w-full text-left px-5 py-3 flex items-start gap-2.5"
+                  >
+                    <svg className="w-3.5 h-3.5 text-zinc-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <p className="text-xs text-zinc-500 leading-relaxed">{alarm.triggerCondition}</p>
+                  </button>
+
+                  {isOpen && (
+                    <div className="border-t border-[#1e1e2e] px-5 pb-5 pt-4 space-y-4">
+                      <div className="flex gap-3">
+                        <div className={`w-0.5 rounded-full flex-shrink-0 ${accentColor.dot}`} />
+                        <p className="text-sm text-zinc-300 leading-relaxed">{alarm.description}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3">วิธีแก้ปัญหา</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {alarm.solutions.map((s, i) => (
+                            <div key={i} className="flex items-start gap-3">
+                              <span className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mt-0.5 ${accentColor.badge} border`}>
+                                {i + 1}
+                              </span>
+                              <p className="text-sm text-zinc-300 leading-relaxed">{s}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Top 10 Repeated Alarms Table */}
+                      <div>
+                        <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3">Top 10 Alarms ที่เกิดซ้ำบ่อย</p>
+                        <div className="border border-[#1e1e2e] rounded-xl overflow-hidden">
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="border-b border-[#1e1e2e] bg-[#16161f]">
+                                  <th className="px-3 py-2.5 text-left text-[10px] font-bold text-zinc-500 uppercase tracking-wider w-10">#</th>
+                                  <th className="px-3 py-2.5 text-left text-[10px] font-bold text-zinc-500 uppercase tracking-wider w-12">ID</th>
+                                  <th className="px-3 py-2.5 text-left text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Category</th>
+                                  <th className="px-3 py-2.5 text-left text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Alarm Name (EN)</th>
+                                  <th className="px-3 py-2.5 text-left text-[10px] font-bold text-zinc-500 uppercase tracking-wider">ชื่อ (TH)</th>
+                                  <th className="px-3 py-2.5 text-right text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Count</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {topAlarms.map((a, i) => (
+                                  <tr key={a.id} className={`border-b border-[#1a1a24] hover:bg-[#16161f] transition-colors ${i % 2 !== 0 ? 'bg-[#0a0a10]' : ''}`}>
+                                    <td className="px-3 py-2.5">
+                                      <span className={`text-xs font-bold ${i === 0 ? 'text-amber-400' : i === 1 ? 'text-zinc-300' : i === 2 ? 'text-amber-600' : 'text-zinc-600'}`}>
+                                        {i + 1}
+                                      </span>
+                                    </td>
+                                    <td className="px-3 py-2.5">
+                                      <span className="font-mono font-bold text-xs text-white">{a.id}</span>
+                                    </td>
+                                    <td className="px-3 py-2.5">
+                                      <span className={`text-xs ${categoryColors[a.category] ?? 'text-zinc-400'}`}>{a.category}</span>
+                                    </td>
+                                    <td className="px-3 py-2.5 text-xs text-zinc-200">{a.alarmNameEN}</td>
+                                    <td className="px-3 py-2.5 text-xs text-zinc-400">{a.alarmNameTH}</td>
+                                    <td className="px-3 py-2.5 text-right">
+                                      <span className={`font-mono font-bold text-xs ${a.ledColor === 'RED' ? 'text-red-400' : 'text-amber-400'}`}>{a.occurrenceCount}</span>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Footer */}
+          <div className="text-center text-zinc-700 text-xs pb-4">
+            Last updated: <LastUpdated /> · AMR Alarm System
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

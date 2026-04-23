@@ -1,0 +1,35 @@
+Alarm_ID,,Alarm_Name_EN,Alarm_Name_TH,Data_Field_1,Data_Field_2,Data_Field_3,Data_Field_4,Data_Field_5,LED_Color,Motor_Control
+1,Safety & Compliance,Emergency Stop Activated,ปุ่มหยุดฉุกเฉินถูกกด,Timestamp,IO_Status,Button_State,CSV_Log_File,,RED,STOPPED
+2,Safety & Compliance,Safety Scanner Triggered,เซฟตี้สแกนเนอร์ทำงาน,Timestamp,Lidar_Status_Code,Error_Code,Detection_Zone,,RED,STOPPED
+3,Safety & Compliance,Safety Zone Violation,ละเมิดเขตความปลอดภัย,Timestamp,Wall_Zone_Coordinates,Robot_Pose_X,Robot_Pose_Y,Robot_Pose_Theta,RED,STOPPED
+4,Safety & Compliance,Reduced Speed Zone Violation,ละเมิดโซนจำกัดความเร็ว,Timestamp,Speed_Zone_Coordinates,Robot_Pose_X,Current_Speed,Zone_Speed_Limit,RED,RUNNING
+5,Localization & Mapping,Lost Localization,ไม่สามารถระบุตำแหน่งได้,Timestamp,AMCL_Pose_Available,Pose_Uncertainty,Last_Valid_Position,Log_File,RED,STOPPED
+6,Localization & Mapping,Localization Accuracy Low,ความแม่นยำของตำแหน่งต่ำ,Timestamp,Current_Pose_Accuracy,Threshold_Value,Occurrence_Count,,RED,RUNNING
+7,Localization & Mapping,Map Mismatch,แผนที่ไม่ตรงกับหน้างาน,Timestamp,Current_Map_ID,Expected_Map_ID,NoRed_Swap_Status,,RED,STOPPED
+8,Localization & Mapping,Marker / QR / RFID Not Found,ไม่พบ Marker / QR / RFID,Timestamp,Expected_Marker_ID,Dock_Log_File,Scan_Attempts,,RED,RUNNING
+9,Localization & Mapping,Re-localization Failed,ระบุตำแหน่งใหม่ไม่สำเร็จ,Timestamp,Lift_Reset_Status,Retry_Count,Log_File,,RED,STOPPED
+10,Navigation & Path Control,Path Blocked,เส้นทางถูกกีดขวาง,Timestamp,Path_Coordinates,Goal_Coordinates,MoveBase_Status,Obstacle_Detection,RED,RUNNING
+11,Motion & Drive System,Motor Overtemperature,มอเตอร์ร้อนเกิน,Timestamp,Current_Temperature_C,Temperature_Threshold,Error_Status_Code,,RED,STOPPED
+12,Motion & Drive System,Drive Enable Fail,Drive Disable,Timestamp,Drive_Status_Code,Error_Details,Voltage_Reading,,RED,STOPPED
+13,Motion & Drive System,Speed Feedback Error,ความเร็ว ผิดปกติ,Timestamp,Current_Velocity_ms,Expected_Velocity_ms,NodeRed_MS_Velocity,,RED,RUNNING
+14,Battery & Charging,Battery Low,แบตเตอรี่ต่ำ,Timestamp,Battery_Percentage,Voltage_V,Current_A,Threshold_30Percent,YELLOW,RUNNING
+15,Battery & Charging,Battery Critical,แบตเตอรี่ต่ำระดับวิกฤต,Timestamp,Battery_Percentage,Voltage_V,Current_A,Dock_Charging_Cycle,RED,STOPPED
+16,Battery & Charging,Charging Current Abnormal,Current ผิดปกติ,Timestamp,Current_A,Expected_Current_Range,Voltage_V,,RED,STOPPED
+17,Battery & Charging,Battery Communication Docking Error,Battery Communication Docking Error,Timestamp,Timeout_ms,Retry_Loop_Count,Communication_Status,,RED,STOPPED
+18,Battery & Charging,Power Supply Voltage Drop,Power Supply Voltage Drop,Timestamp,Current_Voltage_V,Normal_Voltage_Range,Docking_Status,,RED,STOPPED
+19,Battery & Charging,Auto Charging Failed,การชาร์จอัตโนมัติล้มเหลว,Timestamp,Charge_Type_AUTO,Dock_Status,Retry_Count,,RED,STOPPED
+20,Sensor & Vision,Lidar Fault,Lidar ขัดข้อง,Timestamp,Lidar_Status_Code,Error_Details,Realtime_Check_Data,,RED,STOPPED
+21,Sensor & Vision,Camera Offline,กล้องไม่ทำงาน,Timestamp,Camera_Status,Last_Frame_Timestamp,Error_Code,,RED,STOPPED
+22,Sensor & Vision,IMU Error,เซนเซอร์IMU Error,Timestamp,IMU_Status_Code,Acceleration_X,Acceleration_Y,Acceleration_Z,RED,STOPPED
+23,Sensor & Vision,Proximity Sensor Fault,เซนเซอร์ Proximity Senso Error,Timestamp,Sensor_Status,Lift_Dolly_Proximity,Distance_Reading,,RED,STOPPED
+24,IO / Electrical Alarm,IO Module Offline,โมดูล IO ออฟไลน์,Timestamp,Module_ID,Connection_Status,Last_Heartbeat,,RED,STOPPED
+25,IO / Electrical Alarm,Encoder Power Lost,Encoder Power Lost,Timestamp,Motor_ID,Power_Status,Drive_Motor_Feedback,,RED,STOPPED
+26,Task / Mission,Lifter Failed,Lifter ยกงานไม่ได้,Timestamp,Lift_Auto_Check_Result,Current_Height,Motor_Status,,RED,STOPPED
+27,Software & Controller,Disk Full,ดิสก์เต็ม,Timestamp,Disk_Usage_Percent,Available_Space_GB,Partition_Info,,RED,STOPPED
+28,Software & Controller,Parameter Out of Range,พารามิเตอร์เกินควบคุม,Timestamp,Parameter_Name,Current_Value,Valid_Range,,RED,STOPPED
+29,Software & Controller,CPU Overload,CPUOverload,Timestamp,CPU_Usage_Percent,Load_Average,Temperature_C,,RED,STOPPED
+30,Software & Controller,Unexpected Reboot,ระบบรีสตาร์ทผิดปกติ,Timestamp,Reboot_Reason,PC_Shutdown_Log,Last_Boot_Log,,RED,STOPPED
+31,Maintenance & Warning,Preventive Maintenance Due,ถึงกำหนดบำรุงรักษา,Timestamp,Maintenance_Schedule,Days_Remaining,Operator_Info,,YELLOW,RUNNING
+32,Maintenance & Warning,Battery Lifetime Warning,ถึงกำหนดเปลี่ยนแบต,Timestamp,Charge_Cycle_Count,Total_Cycles_Limit,Percent_Lifetime_Used,,YELLOW,RUNNING
+33,Maintenance & Warning,Motor Lifetime Warning,ถึงกำหนดเปลี่ยนมอเตอร์,Timestamp,Runtime_Hours,Total_Hour_Limit,Request_Status,,YELLOW,RUNNING
+34,Maintenance & Warning,Repeated Same Alarm,เกิด Alarm เดิมซ้ำบ่อย,Timestamp,Alarm_ID,Occurrence_Count,Time_Period_Day,Threshold_10_Per_Day,YELLOW,RUNNING

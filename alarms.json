@@ -1,0 +1,397 @@
+[
+  {
+    "alarm_id": "SAF-001",
+    "category": "Safety & Compliance",
+    "event_name": "Emergency Stop Activated",
+    "timestamp": "2026-04-23T10:15:33+07:00",
+    "solution": "Stop robot immediately, wait until safety zone is clear",
+    "robot_pose": {
+      "position": { "x": 1.24, "y": 3.56 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.71, "w": 0.71 }
+    }
+  },
+  {
+    "alarm_id": "SAF-002",
+    "category": "Safety & Compliance",
+    "event_name": "Lidar not found init start",
+    "timestamp": "2026-04-23T10:15:33+07:00",
+    "solution": "Stop robot immediately, wait until safety zone is clear"
+  },
+  {
+    "alarm_id": "SAF-003",
+    "category": "Safety & Compliance",
+    "event_name": "Safety Zone Violation",
+    "mapname": "example map",
+    "status": "ACTIVE",
+    "severity": "CRITICAL",
+    "robot_pose": {
+      "position": { "x": 2.31, "y": 1.47 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.38, "w": 0.92 }
+    },
+    "wall_and_zone": {
+      "type": "wall",
+      "position": { "x": 2.31, "y": 1.47 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.38, "w": 0.92 }
+    },
+    "timestamp": "2026-04-23T10:22:10+07:00",
+    "solution": "Stop robot immediately, wait until safety zone is clear"
+  },
+  {
+    "alarm_id": "SAF-004",
+    "category": "Safety & Compliance",
+    "event_name": "Reduced Speed Zone Violation",
+    "robot_pose": {
+      "position": { "x": 5.12, "y": 2.84 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.52, "w": 0.85 }
+    },
+    "speed_detail": {
+      "zone_name": "reduced_speed_zone_A",
+      "max_speed_mps": 0.3,
+      "current_speed_mps": 0.6
+    },
+    "timestamp": "2026-04-23T10:35:20+07:00",
+    "mapname": "example map"
+  },
+  {
+    "alarm_id": "LOC-005",
+    "category": "Localization & Mapping",
+    "event_name": "Lost Localization",
+    "localization_detail": {
+      "amcl_topic": "/amcl_pose",
+      "last_pose_time": "2026-04-23T10:41:02+07:00",
+      "timeout_sec": 2.0
+    },
+    "timestamp": "2026-04-23T10:41:05+07:00",
+    "solution": "Stop robot, check LiDAR, map alignment, TF, and reinitialize AMCL (2D Pose Estimate)"
+  },
+  {
+    "alarm_id": "LOC-006",
+    "category": "Localization & Mapping",
+    "event_name": "Localization Accuracy Low",
+    "lastest_poi": "POI2",
+    "lift_up_repeat": "15",
+    "robot_pose": {
+      "position": { "x": 3.45, "y": 1.92 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.61, "w": 0.79 }
+    },
+    "timestamp": "2026-04-23T10:48:40+07:00",
+    "solution": "example solutions"
+  },
+  {
+    "alarm_id": "MAP-007",
+    "category": "Localization & Mapping",
+    "event_name": "Map Mismatch",
+    "robot_pose": {
+      "position": { "x": 0.0, "y": 0.0 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0 }
+    },
+    "map_detail": {
+      "current_map": "warehouse_map_v1",
+      "expected_map": "warehouse_map_v2",
+      "mismatch_reason": "static obstacles do not align",
+      "swap_method": "Node-RED map swap"
+    },
+    "timestamp": "2026-04-23T10:55:30+07:00",
+    "solution": "Stop robot, cut motor power, verify correct map for the site, swap map via Node-RED, then reinitialize"
+  },
+  {
+    "alarm_id": "LOC-008",
+    "category": "Localization & Mapping",
+    "event_name": "Marker / QR / RFID Not Found",
+    "dock_detail": {
+      "start_process_time_stamp": "2026-04-23T11:05:10+07:00",
+      "dock_id": "dock_station_A",
+      "retry_count": 5,
+      "max_retry_allowed": 4,
+      "end_process_time_stamp": "2026-04-23T11:05:10+07:00"
+    },
+    "timestamp": "2026-04-23T11:05:10+07:00",
+    "solution": "Check marker/QR/RFID visibility, clean sensor or camera, verify dock position, and retry"
+  },
+  {
+    "alarm_id": "LOC-009",
+    "category": "Localization & Mapping",
+    "event_name": "Re-localization Failed",
+    "current_map": "warehouse_map_v1",
+    "robot_pose": {
+      "position": { "x": 0.0, "y": 0.0 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0 }
+    },
+    "timestamp": "2026-04-23T11:12:45+07:00",
+    "solution": "Stop robot, check LiDAR and map alignment, manually set initial pose, verify lift mechanism state, and retry re-localization"
+  },
+  {
+    "alarm_id": "NAV-010",
+    "category": "Navigation & Path Control",
+    "event_name": "Path Blocked",
+    "lastest_poi": "POI15",
+    "robot_pose": {
+      "position": { "x": 8.21, "y": 4.33 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.24, "w": 0.97 }
+    },
+    "timestamp": "2026-04-23T11:20:10+07:00",
+    "solution": "example solution",
+    "current_map": "example map"
+  },
+  {
+    "alarm_id": "DRV-011",
+    "category": "Motion & Drive System",
+    "event_name": "Motor Overtemperature",
+    "robot_pose": {
+      "position": { "x": 1.88, "y": 6.42 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.91, "w": 0.41 }
+    },
+    "current_map": "example map",
+    "timestamp": "2026-04-23T11:28:16+07:00",
+    "solution": "Stop robot immediately, cut motor power, allow motor to cool down, check load and ventilation, and inspect motor driver"
+  },
+  {
+    "alarm_id": "DRV-012",
+    "category": "Motion & Drive System",
+    "event_name": "Drive Enable Fail",
+    "robot_pose": {
+      "position": { "x": 0.95, "y": 2.13 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.08, "w": 1.00 }
+    },
+    "timestamp": "2026-04-23T11:34:51+07:00",
+    "solution": "Stop robot, check emergency stop, safety relay, power supply, and motor driver error code, then re-enable drive"
+  },
+  {
+    "alarm_id": "DRV-013",
+    "category": "Motion & Drive System",
+    "event_name": "Speed Feedback Error",
+    "robot_pose": {
+      "position": { "x": 4.62, "y": 3.18 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.33, "w": 0.94 }
+    },
+    "timestamp": "2026-04-23T11:42:30+07:00",
+    "solution": "Check encoder connection, verify velocity scaling, inspect wheel slip, and review Node-RED velocity configuration",
+    "currentmap": "example map",
+    "latest_poi": "POI17"
+  },
+  {
+    "alarm_id": "BAT-014",
+    "category": "Battery & Charging",
+    "event_name": "Battery Low",
+    "robot_pose": {
+      "position": { "x": 1.80, "y": 4.25 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.45, "w": 0.89 }
+    },
+    "event_data": {
+      "battery_percent": 29,
+      "voltage": 47.1,
+      "cell_voltage": {
+        "cell_1": 3.72, "cell_2": 3.71, "cell_3": 3.69, "cell_4": 3.70,
+        "cell_5": 3.68, "cell_6": 3.72, "cell_7": 3.70, "cell_8": 3.71
+      }
+    },
+    "timestamp": "2026-04-23T15:10:42+07:00",
+    "solution": "Monitor battery level and return to charging station before reaching critical level",
+    "current_map": "Example map",
+    "lastest_poi": "POI17"
+  },
+  {
+    "alarm_id": "BAT-015",
+    "category": "Battery & Charging",
+    "event_name": "Battery Critical",
+    "event_description_th": "แบตเตอรี่ต่ำระดับวิกฤต",
+    "robot_pose": {
+      "position": { "x": 0.0, "y": 0.0 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0 }
+    },
+    "event_data": {
+      "battery_percent": 12,
+      "pack_voltage": 44.2,
+      "cell_voltage": {
+        "cell_1": 3.30, "cell_2": 3.28, "cell_3": 3.31, "cell_4": 3.29,
+        "cell_5": 3.27, "cell_6": 3.30, "cell_7": 3.28, "cell_8": 3.29
+      }
+    },
+    "timestamp": "2026-04-23T15:25:10+07:00",
+    "solution": "Stop current cycle, return to charging station immediately, and resume task after charging reaches safe threshold",
+    "current_map": "Example map",
+    "lastest_poi": "POI17"
+  },
+  {
+    "alarm_id": "BAT-016",
+    "category": "Battery & Charging",
+    "event_name": "Charging Current Abnormal",
+    "robot_pose": {
+      "position": { "x": 10.50, "y": 1.20 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.98, "w": 0.18 }
+    },
+    "event_data": {
+      "charging_state": "CHARGING",
+      "charging_voltage": 54.2,
+      "charging_current": 8.5,
+      "expected_current_range": { "min": 3.0, "max": 6.0 },
+      "error_status_code": "CHG_E_CURRENT_ABNORMAL"
+    },
+    "timestamp": "2026-04-23T15:40:55+07:00",
+    "solution": "Stop charging process, check charger output, battery pack condition, wiring, and current sensor calibration"
+  },
+  {
+    "alarm_id": "BAT-017",
+    "category": "Battery & Charging",
+    "event_name": "Battery Communication Docking Error",
+    "robot_pose": {
+      "position": { "x": 10.55, "y": 1.18 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.99, "w": 0.14 }
+    },
+    "event_data": {
+      "dock_state": "ATTEMPTING_CONNECTION",
+      "battery_comm_status": "FAILED",
+      "dock_station_detected": "dock_A",
+      "expected_station": "dock_B",
+      "timeout_sec": 5,
+      "retry_count": 3,
+      "max_retry": 3,
+      "error_code": "BAT_DOCK_COMM_FAIL"
+    },
+    "timestamp": "2026-04-23T15:55:20+07:00",
+    "solution": "Verify correct docking station, restart communication handshake, check battery dock interface and network/IO connection"
+  },
+  {
+    "alarm_id": "BAT-018",
+    "category": "Battery & Charging",
+    "event_name": "Power Supply Voltage Drop",
+    "robot_pose": {
+      "position": { "x": 10.52, "y": 1.15 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.97, "w": 0.24 }
+    },
+    "event_data": {
+      "supply_voltage_v": 42.5,
+      "supply_current_a": 6.8,
+      "dock_state": "CHARGING",
+      "dockid": "asdasdasd"
+    },
+    "timestamp": "2026-04-23T16:10:05+07:00",
+    "solution": "Check power supply unit, wiring, docking contacts, and load condition. Ensure stable input voltage before charging continues"
+  },
+  {
+    "alarm_id": "BAT-019",
+    "category": "Battery & Charging",
+    "event_name": "Auto Charging Failed",
+    "event_data": {
+      "charging_type": "AUTO",
+      "dock_attempt": 2,
+      "max_attempt": 3,
+      "dock_status": "FAILED",
+      "handshake_status": "TIMEOUT",
+      "error_code": "AUTO_CHG_FAIL",
+      "dockid": "asdasdasd"
+    },
+    "timestamp": "2026-04-23T16:25:40+07:00",
+    "solution": "Check docking alignment, verify auto charging station availability, inspect communication link, and retry auto docking sequence or switch to manual docking mode"
+  },
+  {
+    "alarm_id": "SEN-021",
+    "category": "Sensor & Vision",
+    "event_name": "Camera Offline",
+    "robot_pose": {
+      "position": { "x": 2.10, "y": 3.55 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.42, "w": 0.91 }
+    },
+    "event_data": {
+      "camera_name": "front_camera",
+      "camera_status": "OFFLINE",
+      "timestamp": "2026-04-23T16:40:10+07:00",
+      "error_code": "CAM_OFFLINE"
+    },
+    "timestamp": "2026-04-23T16:40:15+07:00",
+    "solution": "Check camera power supply, USB/GMSL connection, driver status, and restart camera node or ROS launch file"
+  },
+  {
+    "alarm_id": "SEN-022",
+    "category": "Sensor & Vision",
+    "event_name": "IMU Error",
+    "event_data": {
+      "imu_topic": "/imu/data",
+      "imu_status": "ERROR",
+      "error_code": "IMU_FAIL"
+    },
+    "timestamp": "2026-04-23T16:55:20+07:00",
+    "solution": "Check IMU power supply, wiring connection, mounting stability, and restart IMU driver or ROS node"
+  },
+  {
+    "alarm_id": "SEN-023",
+    "category": "Sensor & Vision",
+    "event_name": "Proximity Sensor Fault",
+    "robot_pose": {
+      "position": { "x": 1.75, "y": 4.10 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.58, "w": 0.81 }
+    },
+    "event_data": {
+      "sensor_type": "proximity",
+      "sensor_location": "lift up or down",
+      "sensor_status": "FAULT"
+    },
+    "timestamp": "2026-04-23T17:10:05+07:00",
+    "solution": "Check proximity sensor wiring, clean sensor surface, verify mounting alignment, and restart sensor node or controller",
+    "currentmap": true,
+    "lastest_poi": "poi16"
+  },
+  {
+    "alarm_id": "IO-024",
+    "category": "IO / Electrical Alarm",
+    "event_name": "IO Module Offline",
+    "timestamp": "2026-04-23T17:25:12+07:00",
+    "solution": "Check IO power supply, communication cable (RS485/CAN/EtherCAT), controller status, and restart IO module or main controller"
+  },
+  {
+    "alarm_id": "IO-025",
+    "category": "IO / Electrical Alarm",
+    "event_name": "Encoder Power Lost",
+    "timestamp": "2026-04-23T17:40:12+07:00",
+    "solution": "Check encoder power supply (5V/12V), wiring harness, motor driver output, and verify connector seating or replace encoder cable if damaged",
+    "currentmap": true,
+    "lastest_poi": "poi16"
+  },
+  {
+    "alarm_id": "TASK-026",
+    "category": "Task / Mission",
+    "event_name": "Lifter Failed",
+    "robot_pose": {
+      "position": { "x": 3.20, "y": 1.85 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.62, "w": 0.78 }
+    },
+    "event_data": {
+      "lift_command": "UP",
+      "lift_status": "FAILED",
+      "error_code": "LIFT_FAIL"
+    },
+    "timestamp": "2026-04-23T17:55:20+07:00",
+    "solution": "Check lift motor load, mechanical jam, limit switch, encoder feedback, and lift driver current. Clear obstruction and retry lift operation",
+    "currentmap": true,
+    "lastest_poi": "poi16"
+  },
+  {
+    "alarm_id": "SW-027",
+    "category": "Software & Controller",
+    "event_name": "Disk Full",
+    "robot_pose": {
+      "position": { "x": 0.0, "y": 0.0 },
+      "orientation": { "x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0 }
+    },
+    "event_data": {
+      "disk_usage_percent": 98,
+      "threshold_percent": 90,
+      "available_space_mb": 120
+    },
+    "timestamp": "2026-04-23T18:10:00+07:00"
+  },
+  {
+    "alarm_id": "SW-029",
+    "category": "Software & Controller",
+    "event_name": "CPU Overload",
+    "event_description_th": "CPU ทำงานหนักเกินกำหนด",
+    "event_data": {
+      "cpu_usage_percent": 97,
+      "cpu_temperature_c": 82,
+      "load_average": "5.8 / 6.0 / 6.2",
+      "threshold_percent": 85
+    },
+    "timestamp": "2026-04-23T18:40:10+07:00",
+    "solution": "Reduce running processes, restart heavy nodes, optimize perception/planning load, check memory leaks, and enable CPU throttling or task prioritization"
+  }
+]
