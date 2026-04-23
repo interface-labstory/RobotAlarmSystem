@@ -63,7 +63,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
           : urgency === 'soon' ? 'bg-amber-400 animate-pulse'
           : 'bg-cyan-400'
         }`} />
-        <span className="text-zinc-500 tracking-widest uppercase text-[10px]">กำหนดส่งมอบหุ่น</span>
+        <span className="text-zinc-500 tracking-widest uppercase text-[10px]">ส่งมอบหุ่นวันที่</span>
         <span className={`font-bold text-sm ${
           passed ? 'text-zinc-300'
           : urgency === 'urgent' ? 'text-red-200'
@@ -72,7 +72,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
         }`}>
           {deliveryLabel}
         </span>
-        {!passed && (
+        {/* {!passed && (
           <>
             <span className="text-zinc-600">·</span>
             <div className="flex items-center gap-1.5">
@@ -99,7 +99,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
               </span>
             )}
           </>
-        )}
+        )} */}
         {passed && <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 text-[10px]">ส่งมอบแล้ว</span>}
       </div>
 
