@@ -427,7 +427,7 @@ function LogsPageInner() {
 
           {/* Footer */}
           <div className="mt-8 text-center text-zinc-700 text-xs pb-4">
-            Last updated: {new Date().toLocaleString()} · Amr Alarm System
+            Last updated: {new Date().toLocaleString()} ·AMR ALARM SYSTEM
           </div>
         </div>
       </div>

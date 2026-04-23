@@ -114,7 +114,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
                 🤖
               </div>
               <span className="font-bold text-base text-white tracking-tight group-hover:text-cyan-400 transition-colors">
-                Amr <span className="text-cyan-500">Alarm</span>
+                AMR <span className="text-cyan-500">ALARM</span>
               </span>
             </Link>
 
