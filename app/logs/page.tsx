@@ -139,7 +139,7 @@ function LogRow({ log }: { log: AlarmLog }) {
             {log.severity}
           </span>
         </td>
-        <td className="px-4 py-3.5 text-sm text-zinc-400 max-w-xs">{log.message}</td>
+        <td className="px-4 py-3.5 text-sm text-zinc-300 max-w-xs">{log.message}</td>
         <td className="px-4 py-3.5 font-mono text-xs text-amber-300">{log.value || '—'}</td>
         <td className="px-4 py-3.5">
           <span className={`px-2.5 py-0.5 rounded-md text-xs font-semibold border ${sta.bg} ${sta.color}`}>
@@ -222,9 +222,9 @@ function LogsPageInner() {
           {/* Breadcrumb + Header */}
           <div className="mb-8">
             <div className="flex items-center gap-2 text-xs text-zinc-600 mb-3">
-              <Link href="/" className="hover:text-zinc-400 transition">Dashboard</Link>
+              <Link href="/" className="hover:text-zinc-300 transition">Dashboard</Link>
               <span>/</span>
-              <span className="text-zinc-400">Logs</span>
+              <span className="text-zinc-300">Logs</span>
               {selectedInfo && <><span>/</span><span className="text-cyan-400">ID {selectedInfo.id}</span></>}
             </div>
             <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -236,7 +236,7 @@ function LogsPageInner() {
                 {selectedInfo && <p className="text-zinc-500 text-sm mt-1">{selectedInfo.alarmNameTH} · ID {selectedInfo.id}</p>}
               </div>
               {selectedInfo && (
-                <Link href="/logs" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-zinc-400 border border-[#2a2a3a] hover:text-white hover:border-[#3a3a4a] transition">
+                <Link href="/logs" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-zinc-300 border border-[#2a2a3a] hover:text-white hover:border-[#3a3a4a] transition">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ResponsiveContainer, LineChart, Line,
@@ -56,7 +56,7 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-[#16161f] border border-[#2a2a3a] rounded-xl px-4 py-3 shadow-xl">
-      <p className="text-xs font-semibold text-zinc-400 mb-2">{label}</p>
+      <p className="text-xs font-semibold text-zinc-300 mb-2">{label}</p>
       {payload.map((p, i) => (
         <div key={i} className="flex items-center gap-2 text-sm">
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
@@ -72,6 +72,52 @@ export default function AlarmTimeChart() {
   const allIds = Object.keys(alarmHourlyData).map(Number);
   const [selectedIds, setSelectedIds] = useState<number[]>([14, 13, 20, 6, 10]);
   const [chartType, setChartType] = useState<'bar' | 'line'>('line');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  // ── Scroll-wheel zoom ──────────────────────────────────────────
+  const [zoomWindow, setZoomWindow] = useState({ start: 0, end: 23 });
+  const chartWrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = chartWrapperRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      setZoomWindow((prev) => {
+        const range = prev.end - prev.start;
+        const center = (prev.start + prev.end) / 2;
+        const step = Math.max(1, Math.round(range * 0.25));
+        let newRange = e.deltaY < 0 ? range - step : range + step;
+        newRange = Math.max(2, Math.min(23, newRange));
+        let newStart = Math.round(center - newRange / 2);
+        let newEnd = newStart + newRange;
+        if (newStart < 0) { newEnd -= newStart; newStart = 0; }
+        if (newEnd > 23) { newStart -= (newEnd - 23); newEnd = 23; }
+        return { start: Math.max(0, newStart), end: Math.min(23, newEnd) };
+      });
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, []);
+
+  const resetZoom = () => setZoomWindow({ start: 0, end: 23 });
+  const isZoomed = zoomWindow.start !== 0 || zoomWindow.end !== 23;
+  // ──────────────────────────────────────────────────────────────
 
   const toggleId = (id: number) => {
     setSelectedIds((prev) =>
@@ -81,14 +127,96 @@ export default function AlarmTimeChart() {
 
   const data = buildHourlyData(selectedIds);
   const peakSummary = buildPeakSummary();
+  const visibleData = data.slice(zoomWindow.start, zoomWindow.end + 1);
+
+  const chartHeight = isFullscreen ? 520 : 320;
+
+  const chartContent = () => (
+    <>
+      {/* Alarm Selector */}
+      <div className="mb-6">
+        <p className="text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-3">เลือก Alarm ID</p>
+        <div className="flex flex-wrap gap-2">
+          {allIds.map((id) => (
+            <button
+              key={id}
+              onClick={() => toggleId(id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                selectedIds.includes(id)
+                  ? 'border-transparent text-[#0d0d14]'
+                  : 'bg-transparent text-zinc-200 border-[#2a2a3a] hover:text-white hover:border-[#3a3a4a]'
+              }`}
+              style={selectedIds.includes(id) ? { backgroundColor: alarmColors[id] } : {}}
+            >
+              {id} · {alarmNames[id]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Chart */}
+      {selectedIds.length === 0 ? (
+        <div className="h-64 flex items-center justify-center text-zinc-300 text-sm">
+          เลือก Alarm ID อย่างน้อย 1 รายการ
+        </div>
+      ) : (
+        <>
+          {/* Zoom status */}
+          <div className="flex items-center justify-between mb-2 select-none">
+            <span className="text-xs text-zinc-500">
+              {isZoomed
+                ? `🔍 ${String(zoomWindow.start).padStart(2, '0')}:00 – ${String(zoomWindow.end).padStart(2, '0')}:00 · ${zoomWindow.end - zoomWindow.start + 1} ชั่วโมง`
+                : 'เลื่อน scroll เพื่อ zoom · double-click เพื่อรีเซต'}
+            </span>
+            {isZoomed && (
+              <button onClick={resetZoom} className="text-xs text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
+                รีเซต zoom
+              </button>
+            )}
+          </div>
+          <div ref={chartWrapperRef} onDoubleClick={resetZoom} style={{ cursor: 'crosshair' }}>
+            <ResponsiveContainer width="100%" height={chartHeight}>
+              {chartType === 'bar' ? (
+                <BarChart data={visibleData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
+                  <XAxis dataKey="hour" tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend wrapperStyle={{ fontSize: 12, color: '#d4d4d8' }} />
+                  {selectedIds.map((id) => (
+                    <Bar key={id} dataKey={`ID ${id}`} fill={alarmColors[id]} radius={[3, 3, 0, 0]} maxBarSize={20} />
+                  ))}
+                </BarChart>
+              ) : (
+                <LineChart data={visibleData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
+                  <XAxis dataKey="hour" tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend wrapperStyle={{ fontSize: 12, color: '#d4d4d8' }} />
+                  {selectedIds.map((id) => (
+                    <Line key={id} type="monotone" dataKey={`ID ${id}`} stroke={alarmColors[id]}
+                      strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
+                  ))}
+                </LineChart>
+              )}
+            </ResponsiveContainer>
+          </div>
+        </>
+      )}
+    </>
+  );
 
   return (
-    <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-2xl overflow-hidden mb-6">
+    <div
+      ref={containerRef}
+      className={`chart-fullscreen-container bg-[#0d0d14] border border-[#1e1e2e] rounded-2xl overflow-hidden mb-6 ${isFullscreen ? 'is-fullscreen' : ''}`}
+    >
       {/* Header */}
       <div className="px-6 py-5 border-b border-[#1e1e2e] flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h2 className="text-xl font-bold text-white">Alarm Occurrence by Time</h2>
-          <p className="text-zinc-500 text-sm mt-0.5">ช่วงเวลาที่ Alarm เกิดบ่อยที่สุดในแต่ละชั่วโมง</p>
+          <p className="text-zinc-300 text-sm mt-0.5">ช่วงเวลาที่ Alarm เกิดบ่อยที่สุดในแต่ละชั่วโมง</p>
         </div>
         <div className="flex gap-2">
           {(['bar', 'line'] as const).map((t) => (
@@ -98,85 +226,49 @@ export default function AlarmTimeChart() {
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all border ${
                 chartType === t
                   ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                  : 'bg-transparent text-zinc-500 border-[#2a2a3a] hover:text-zinc-300'
+                  : 'bg-transparent text-zinc-200 border-[#2a2a3a] hover:text-white'
               }`}
             >
               {t === 'bar' ? 'Bar' : 'Line'}
             </button>
           ))}
+          <button
+            onClick={toggleFullscreen}
+            className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all border border-[#2a2a3a] text-zinc-200 hover:text-cyan-400 hover:border-cyan-500/30"
+            title={isFullscreen ? 'ออกจากเต็มจอ' : 'เต็มจอ'}
+          >
+            {isFullscreen ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 3v3a2 2 0 0 1-2 2H3" /><path d="M21 8h-3a2 2 0 0 1-2-2V3" />
+                <path d="M3 16h3a2 2 0 0 1 2 2v3" /><path d="M16 21v-3a2 2 0 0 1 2-2h3" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 3h6v6" /><path d="M9 21H3v-6" />
+                <path d="M21 3l-7 7" /><path d="M3 21l7-7" />
+              </svg>
+            )}
+          </button>
         </div>
       </div>
 
       <div className="p-6">
-        {/* Alarm Selector */}
-        <div className="mb-6">
-          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">เลือก Alarm ID</p>
-          <div className="flex flex-wrap gap-2">
-            {allIds.map((id) => (
-              <button
-                key={id}
-                onClick={() => toggleId(id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
-                  selectedIds.includes(id)
-                    ? 'border-transparent text-[#0d0d14]'
-                    : 'bg-transparent text-zinc-500 border-[#2a2a3a] hover:text-zinc-300 hover:border-[#3a3a4a]'
-                }`}
-                style={selectedIds.includes(id) ? { backgroundColor: alarmColors[id] } : {}}
-              >
-                {id} · {alarmNames[id]}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Chart */}
-        {selectedIds.length === 0 ? (
-          <div className="h-64 flex items-center justify-center text-zinc-600 text-sm">
-            เลือก Alarm ID อย่างน้อย 1 รายการ
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height={320}>
-            {chartType === 'bar' ? (
-              <BarChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
-                <XAxis dataKey="hour" tick={{ fontSize: 10, fill: '#52525b' }} tickLine={false} axisLine={false} interval={2} />
-                <YAxis tick={{ fontSize: 10, fill: '#52525b' }} tickLine={false} axisLine={false} />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 11, color: '#71717a' }} />
-                {selectedIds.map((id) => (
-                  <Bar key={id} dataKey={`ID ${id}`} fill={alarmColors[id]} radius={[3, 3, 0, 0]} maxBarSize={20} />
-                ))}
-              </BarChart>
-            ) : (
-              <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
-                <XAxis dataKey="hour" tick={{ fontSize: 10, fill: '#52525b' }} tickLine={false} axisLine={false} interval={2} />
-                <YAxis tick={{ fontSize: 10, fill: '#52525b' }} tickLine={false} axisLine={false} />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 11, color: '#71717a' }} />
-                {selectedIds.map((id) => (
-                  <Line key={id} type="monotone" dataKey={`ID ${id}`} stroke={alarmColors[id]}
-                    strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
-                ))}
-              </LineChart>
-            )}
-          </ResponsiveContainer>
-        )}
+        {chartContent()}
 
         {/* Peak Summary */}
         <div className="mt-6 border border-[#1e1e2e] rounded-xl overflow-hidden">
           <div className="px-4 py-3 bg-[#16161f] border-b border-[#1e1e2e]">
-            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Peak Hour Summary</p>
+            <p className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">Peak Hour Summary</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#1e1e2e]">
-                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Alarm</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Name</th>
-                  <th className="px-4 py-2.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider">Peak Hour</th>
-                  <th className="px-4 py-2.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider">Peak Count</th>
-                  <th className="px-4 py-2.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider">Total/Day</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-zinc-300 uppercase tracking-wider">Alarm</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-zinc-300 uppercase tracking-wider">Name</th>
+                  <th className="px-4 py-2.5 text-center text-xs font-semibold text-zinc-300 uppercase tracking-wider">Peak Hour</th>
+                  <th className="px-4 py-2.5 text-center text-xs font-semibold text-zinc-300 uppercase tracking-wider">Peak Count</th>
+                  <th className="px-4 py-2.5 text-center text-xs font-semibold text-zinc-300 uppercase tracking-wider">Total/Day</th>
                 </tr>
               </thead>
               <tbody>
@@ -195,7 +287,7 @@ export default function AlarmTimeChart() {
                     <td className="px-4 py-3 text-center">
                       <span className="text-red-400 font-bold">{row.peakCount}</span>
                     </td>
-                    <td className="px-4 py-3 text-center text-zinc-400">{row.total}</td>
+                    <td className="px-4 py-3 text-center text-zinc-300">{row.total}</td>
                   </tr>
                 ))}
               </tbody>

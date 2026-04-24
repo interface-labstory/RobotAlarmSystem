@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 interface NavbarProps {
-  currentPage?: 'dashboard' | 'logs';
+  currentPage?: 'dashboard' | 'logs' | 'maintenance';
 }
 
 // ── ตั้งวันส่งมอบหุ่นที่นี่ ──────────────────────────────────────────────
@@ -28,10 +28,28 @@ function useCountdown(target: Date) {
   return countdown;
 }
 
+type FontSize = 'sm' | 'md' | 'lg' | 'xl';
+const fontMap: Record<FontSize, string> = { sm: '13px', md: '16px', lg: '20px', xl: '24px' };
+const fontLabels: Record<FontSize, string> = { sm: 'A⁻', md: 'A', lg: 'A⁺', xl: 'A⁺⁺' };
+
 export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
   const [searchAlarmId, setSearchAlarmId] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [fontSize, setFontSize] = useState<FontSize>('md');
   const { days, hours, passed } = useCountdown(DELIVERY_DATE);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('amr-font') as FontSize | null;
+      if (saved && fontMap[saved]) setFontSize(saved);
+    } catch {}
+  }, []);
+
+  const applyFont = (s: FontSize) => {
+    document.documentElement.style.fontSize = fontMap[s];
+    localStorage.setItem('amr-font', s);
+    setFontSize(s);
+  };
 
   const handleSearch = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,7 +68,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
       {/* Delivery Date Banner */}
       <div className={`w-full px-4 py-2 flex items-center justify-center gap-3 text-xs font-semibold border-b ${
         passed
-          ? 'bg-zinc-900 border-zinc-800 text-zinc-400'
+          ? 'bg-zinc-900 border-zinc-800 text-zinc-300'
           : urgency === 'urgent'
           ? 'bg-red-500/10 border-red-500/20 text-red-300'
           : urgency === 'soon'
@@ -84,7 +102,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
                 <span>{days}</span>
                 <span className="text-[10px] font-normal opacity-70">วัน</span>
               </div>
-              <div className="px-2 py-0.5 rounded-md font-mono text-xs bg-white/5 text-zinc-400">
+              <div className="px-2 py-0.5 rounded-md font-mono text-xs bg-white/5 text-zinc-300">
                 {String(hours).padStart(2, '0')} ชม.
               </div>
             </div>
@@ -100,7 +118,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
             )}
           </>
         )} */}
-        {passed && <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 text-[10px]">ส่งมอบแล้ว</span>}
+        {passed && <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 text-[10px]">ส่งมอบแล้ว</span>}
       </div>
 
       {/* Main Nav */}
@@ -124,7 +142,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
                 className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
                   currentPage === 'dashboard'
                     ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                    : 'text-zinc-200 hover:text-white hover:bg-white/5'
                 }`}
               >
                 Dashboard
@@ -134,16 +152,46 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
                 className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
                   currentPage === 'logs'
                     ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                    : 'text-zinc-200 hover:text-white hover:bg-white/5'
                 }`}
               >
                 Logs
               </Link>
+              <Link
+                href="/maintenance"
+                className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  currentPage === 'maintenance'
+                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                    : 'text-zinc-200 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                Maintenance
+              </Link>
             </div>
           </div>
 
-          {/* Search + Mobile toggle */}
+          {/* Search + Font Size + Mobile toggle */}
           <div className="flex items-center gap-3">
+            {/* Font Size Buttons */}
+            <div className="hidden md:flex items-center gap-0.5 bg-[#0d0d14] border border-[#1a1a28] rounded-lg p-0.5">
+              {(['sm', 'md', 'lg', 'xl'] as const).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => applyFont(s)}
+                  title={s === 'sm' ? 'ตัวเล็ก' : s === 'md' ? 'ปกติ' : s === 'lg' ? 'ใหญ่' : 'ใหญ่มาก'}
+                  className={`px-2.5 py-1 rounded-md font-bold transition-all ${
+                    fontSize === s
+                      ? 'bg-cyan-500/20 text-cyan-400'
+                      : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                  } ${
+                    s === 'sm' ? 'text-xs' : s === 'md' ? 'text-sm' : s === 'lg' ? 'text-base' : 'text-lg'
+                  }`}
+                >
+                  {fontLabels[s]}
+                </button>
+              ))}
+            </div>
+
             <form onSubmit={handleSearch} className="hidden sm:flex items-center gap-2">
               <div className="relative">
                 <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -167,7 +215,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
 
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-2 text-zinc-400 hover:text-white rounded-lg hover:bg-white/5 transition"
+              className="md:hidden p-2 text-zinc-300 hover:text-white rounded-lg hover:bg-white/5 transition"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -197,6 +245,9 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
             </Link>
             <Link href="/logs" className="block px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/5 transition">
               Logs
+            </Link>
+            <Link href="/maintenance" className="block px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/5 transition">
+              Maintenance
             </Link>
           </div>
         )}

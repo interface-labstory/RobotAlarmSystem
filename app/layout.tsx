@@ -27,6 +27,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      {/* Restore font-size from localStorage before hydration to avoid flash */}
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `try{var s=localStorage.getItem('amr-font');var m={sm:'13px',md:'16px',lg:'20px',xl:'24px'};if(s&&m[s])document.documentElement.style.fontSize=m[s];}catch(e){}` }} />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
