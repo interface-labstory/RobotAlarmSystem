@@ -7,6 +7,7 @@ import AlarmTimeChart from './components/AlarmTimeChart';
 import AlarmMonthlyChart from './components/AlarmMonthlyChart';
 import { allAlarms, topAlarms, categoryColors } from './data/alarms';
 import { maintenanceAlarms} from './data/alarms';
+import { useLanguage } from './contexts/LanguageContext';
 
 
 function LedBadge({ color }: { color: string }) {
@@ -39,6 +40,7 @@ function LastUpdated() {
 
 export default function Dashboard() {
   const router = useRouter();
+  const { t, lang } = useLanguage();
   const [alarmSearch, setAlarmSearch] = useState('');
 
   const filteredAllAlarms = allAlarms.filter(
@@ -61,27 +63,27 @@ export default function Dashboard() {
 
           {/* Header */}
           <div className="mb-8">
-            <p className="text-xs font-semibold text-cyan-500 uppercase tracking-widest mb-2">Robot Alarm System</p>
-            <h1 className="text-3xl font-bold text-white mb-1">Status Dashboard</h1>
-            <p className="text-zinc-500 text-sm">Monitor alarm frequency, patterns, and maintenance requirements</p>
+            <p className="text-xs font-semibold text-cyan-500 uppercase tracking-widest mb-2">{t('common.robotAlarmSystem')}</p>
+            <h1 className="text-3xl font-bold text-white mb-1">{t('dashboard.title')}</h1>
+            <p className="text-zinc-500 text-sm">{t('dashboard.subtitle')}</p>
           </div>
 
           {/* Stat Cards */}
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-2xl p-5">
-              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Total Alarms</p>
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">{t('dashboard.totalAlarms')}</p>
               <p className="text-4xl font-bold text-white">{totalAlarms.toLocaleString()}</p>
-              <p className="text-zinc-600 text-sm mt-1">34 alarm types</p>
+              <p className="text-zinc-600 text-sm mt-1">34 {t('dashboard.alarmTypes')}</p>
             </div>
             <div className="bg-[#0d0d14] border border-red-500/10 rounded-2xl p-5">
-              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Critical (RED)</p>
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">{t('dashboard.critical')}</p>
               <p className="text-4xl font-bold text-red-400">{criticalCount.toLocaleString()}</p>
-              <p className="text-zinc-600 text-sm mt-1">Motor stopped</p>
+              <p className="text-zinc-600 text-sm mt-1">{t('dashboard.motorStopped')}</p>
             </div>
             <div className="bg-[#0d0d14] border border-amber-500/10 rounded-2xl p-5">
-              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Warning (YELLOW)</p>
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">{t('dashboard.warning')}</p>
               <p className="text-4xl font-bold text-amber-400">{warningCount.toLocaleString()}</p>
-              <p className="text-zinc-600 text-sm mt-1">Still running</p>
+              <p className="text-zinc-600 text-sm mt-1">{t('dashboard.stillRunning')}</p>
             </div>
           </div>
 
@@ -93,18 +95,18 @@ export default function Dashboard() {
 
           {/* Top 10 */}
           <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-2xl overflow-hidden mb-6">
-            <SectionHeader title="Top 10 Most Frequent Alarms" subtitle="จัดอันดับจากจำนวนครั้งที่เกิดสูงสุด" />
+            <SectionHeader title={t('dashboard.top10Title')} subtitle={t('dashboard.top10Sub')} />
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-[#1e1e2e]">
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-14">#</th>
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-12">ID</th>
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Category</th>
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Alarm Name</th>
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">ชื่อ TH</th>
-                    <th className="px-5 py-3.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider">Count</th>
-                    <th className="px-5 py-3.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider">LED</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-14">{t('table.rank')}</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-12">{t('table.id')}</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.category')}</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.name')}</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.nameTH')}</th>
+                    <th className="px-5 py-3.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.count')}</th>
+                    <th className="px-5 py-3.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.led')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -140,8 +142,10 @@ export default function Dashboard() {
           <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-2xl overflow-hidden mb-6">
             <div className="px-6 py-5 border-b border-[#1e1e2e] flex items-center justify-between gap-4 flex-wrap">
               <div>
-                <h2 className="text-xl font-bold text-white">Alarm Reference</h2>
-                <p className="text-zinc-500 text-sm mt-0.5">ข้อมูล Alarm ทั้งหมด {allAlarms.length} รายการ</p>
+                <h2 className="text-xl font-bold text-white">{t('dashboard.alarmRef')}</h2>
+                <p className="text-zinc-500 text-sm mt-0.5">
+                  {lang === 'th' ? `ข้อมูล Alarm ทั้งหมด ${allAlarms.length} รายการ` : `All ${allAlarms.length} alarm entries`}
+                </p>
               </div>
               <div className="relative">
                 <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -149,7 +153,7 @@ export default function Dashboard() {
                 </svg>
                 <input
                   type="text"
-                  placeholder="ค้นหา ID / Category / Name..."
+                  placeholder={t('dashboard.searchPlaceholder')}
                   value={alarmSearch}
                   onChange={(e) => setAlarmSearch(e.target.value)}
                   className="pl-9 pr-4 py-2 bg-[#16161f] border border-[#2a2a3a] rounded-lg text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 w-64 transition-all"
@@ -160,12 +164,12 @@ export default function Dashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-[#1e1e2e]">
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-14">ID</th>
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Category</th>
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Alarm Name (EN)</th>
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">ชื่อ (TH)</th>
-                    <th className="px-5 py-3.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider w-20">LED</th>
-                    <th className="px-5 py-3.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider w-24">Data</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-14">{t('table.id')}</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.category')}</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.nameEN')}</th>
+                    <th className="px-5 py-3.5 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.nameTH')}</th>
+                    <th className="px-5 py-3.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider w-20">{t('table.led')}</th>
+                    <th className="px-5 py-3.5 text-center text-xs font-semibold text-zinc-500 uppercase tracking-wider w-24">{t('table.data')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -185,14 +189,14 @@ export default function Dashboard() {
                           onClick={() => router.push(`/logs?alarmId=${alarm.id}`)}
                           className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20 transition-all"
                         >
-                          View
+                          {t('dashboard.view')}
                         </button>
                       </td>
                     </tr>
                   ))}
                   {filteredAllAlarms.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-5 py-12 text-center text-zinc-600">ไม่พบข้อมูล</td>
+                      <td colSpan={6} className="px-5 py-12 text-center text-zinc-600">{t('dashboard.noData')}</td>
                     </tr>
                   )}
                 </tbody>
@@ -247,17 +251,17 @@ export default function Dashboard() {
 
                   {/* Top 10 Repeated Alarms Table */}
                   <div>
-                    <p className="text-sm font-bold text-zinc-200 uppercase tracking-widest mb-3">Top 10 Alarms ที่เกิดซ้ำบ่อย</p>
+                    <p className="text-sm font-bold text-zinc-200 uppercase tracking-widest mb-3">{t('dashboard.top10Repeated')}</p>
                     <div className="border border-[#1e1e2e] rounded-xl overflow-hidden">
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b border-[#1e1e2e] bg-[#16161f]">
-                              <th className="px-3 py-2.5 text-left text-xs font-bold text-zinc-200 uppercase tracking-wider w-10">#</th>
-                              <th className="px-3 py-2.5 text-left text-xs font-bold text-zinc-200 uppercase tracking-wider w-12">ID</th>
-                              <th className="px-3 py-2.5 text-left text-xs font-bold text-zinc-200 uppercase tracking-wider">Category</th>
-                              <th className="px-3 py-2.5 text-left text-xs font-bold text-zinc-200 uppercase tracking-wider">Alarm Name (EN)</th>
-                              <th className="px-3 py-2.5 text-left text-xs font-bold text-zinc-200 uppercase tracking-wider">ชื่อ (TH)</th>
+                              <th className="px-3 py-2.5 text-left text-xs font-bold text-zinc-200 uppercase tracking-wider w-10">{t('table.rank')}</th>
+                              <th className="px-3 py-2.5 text-left text-xs font-bold text-zinc-200 uppercase tracking-wider w-12">{t('table.id')}</th>
+                              <th className="px-3 py-2.5 text-left text-xs font-bold text-zinc-200 uppercase tracking-wider">{t('table.category')}</th>
+                              <th className="px-3 py-2.5 text-left text-xs font-bold text-zinc-200 uppercase tracking-wider">{t('table.nameEN')}</th>
+                              <th className="px-3 py-2.5 text-left text-xs font-bold text-zinc-200 uppercase tracking-wider">{t('table.nameTH')}</th>
                               <th className="px-3 py-2.5 text-right text-xs font-bold text-zinc-200 uppercase tracking-wider">Count</th>
                             </tr>
                           </thead>
@@ -298,7 +302,7 @@ export default function Dashboard() {
         </div>
                   {/* Footer */}
           <div className="text-center text-zinc-700 text-xs pb-6">
-            Last updated: <LastUpdated /> · AMR Alarm System
+            {t('common.lastUpdated')}: <LastUpdated /> · AMR Alarm System
           </div>
       </div>
     </>

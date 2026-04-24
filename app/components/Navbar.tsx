@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useLanguage, type Lang } from '../contexts/LanguageContext';
 
 interface NavbarProps {
   currentPage?: 'dashboard' | 'logs' | 'maintenance';
@@ -34,6 +35,7 @@ const fontMap: Record<FontSize, string> = { sm: '13px', md: '16px', lg: '20px', 
 const fontLabels: Record<FontSize, string> = { sm: 'A⁻', md: 'A', lg: 'A⁺', xl: 'A⁺⁺' };
 
 export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
+  const { lang, setLang, t } = useLanguage();
   const [searchAlarmId, setSearchAlarmId] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [fontSize, setFontSize] = useState<FontSize>('md');
@@ -82,7 +84,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
           : urgency === 'soon' ? 'bg-amber-400 animate-pulse'
           : 'bg-cyan-400'
         }`} />
-        <span className="text-zinc-500 tracking-widest uppercase text-[10px]">ส่งมอบหุ่นวันที่</span>
+        <span className="text-zinc-500 tracking-widest uppercase text-[10px]">{t('nav.delivery')}</span>
         <span className={`font-bold text-sm ${
           passed ? 'text-zinc-300'
           : urgency === 'urgent' ? 'text-red-200'
@@ -119,7 +121,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
             )}
           </>
         )} */}
-        {passed && <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 text-[10px]">ส่งมอบแล้ว</span>}
+        {passed && <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 text-[10px]">{t('nav.delivered')}</span>}
       </div>
 
       {/* Main Nav */}
@@ -146,7 +148,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
                     : 'text-zinc-200 hover:text-white hover:bg-white/5'
                 }`}
               >
-                Dashboard
+                {t('nav.dashboard')}
               </Link>
               <Link
                 href="/logs"
@@ -156,7 +158,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
                     : 'text-zinc-200 hover:text-white hover:bg-white/5'
                 }`}
               >
-                Logs
+                {t('nav.logs')}
               </Link>
               <Link
                 href="/maintenance"
@@ -166,13 +168,30 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
                     : 'text-zinc-200 hover:text-white hover:bg-white/5'
                 }`}
               >
-                Maintenance
+                {t('nav.maintenance')}
               </Link>
             </div>
           </div>
 
           {/* Search + Font Size + Mobile toggle */}
           <div className="flex items-center gap-3">
+            {/* Language Toggle */}
+            <div className="hidden md:flex items-center gap-0.5 bg-[#0d0d14] border border-[#1a1a28] rounded-lg p-0.5">
+              {(['en', 'th'] as Lang[]).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all ${
+                    lang === l
+                      ? 'bg-cyan-500/20 text-cyan-400'
+                      : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
             {/* Font Size Buttons */}
             <div className="hidden md:flex items-center gap-0.5 bg-[#0d0d14] border border-[#1a1a28] rounded-lg p-0.5">
               {(['sm', 'md', 'lg', 'xl'] as const).map((s) => (
@@ -200,7 +219,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
                 </svg>
                 <input
                   type="text"
-                  placeholder="Alarm ID..."
+                  placeholder={t('nav.searchPlaceholder')}
                   value={searchAlarmId}
                   onChange={(e) => setSearchAlarmId(e.target.value)}
                   className="w-40 pl-8 pr-3 py-1.5 bg-[#16161f] border border-[#2a2a3a] rounded-lg text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 transition-all"
@@ -210,7 +229,7 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
                 type="submit"
                 className="px-3 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 rounded-lg text-sm font-medium transition-all"
               >
-                Search
+                {t('nav.search')}
               </button>
             </form>
 
@@ -232,23 +251,23 @@ export default function Navbar({ currentPage = 'dashboard' }: NavbarProps) {
             <form onSubmit={handleSearch} className="mb-3 flex gap-2">
               <input
                 type="text"
-                placeholder="Alarm ID..."
+                placeholder={t('nav.searchPlaceholder')}
                 value={searchAlarmId}
                 onChange={(e) => setSearchAlarmId(e.target.value)}
                 className="flex-1 px-4 py-2.5 bg-[#16161f] border border-[#2a2a3a] rounded-lg text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-cyan-500/50"
               />
               <button type="submit" className="px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-lg text-sm font-medium">
-                Search
+                {t('nav.search')}
               </button>
             </form>
             <Link href="/" className="block px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/5 transition">
-              Dashboard
+              {t('nav.dashboard')}
             </Link>
             <Link href="/logs" className="block px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/5 transition">
-              Logs
+              {t('nav.logs')}
             </Link>
             <Link href="/maintenance" className="block px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/5 transition">
-              Maintenance
+              {t('nav.maintenance')}
             </Link>
           </div>
         )}

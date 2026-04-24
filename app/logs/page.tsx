@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '../components/Navbar';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 interface DataField { name: string; mockValue: string; description: string }
@@ -114,6 +115,7 @@ function LedBadge({ color }: { color: string }) {
 // ── Log Row with expandable data snapshot ─────────────────────────────────────
 function LogRow({ log }: { log: AlarmLog }) {
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
   const sev = severityConfig[log.severity];
   const sta = statusConfig[log.status];
 
@@ -156,7 +158,7 @@ function LogRow({ log }: { log: AlarmLog }) {
       {open && (
         <tr className="bg-[#0a0a12] border-b border-[#1a1a24]">
           <td colSpan={8} className="px-6 py-4">
-            <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3">Data Snapshot</p>
+            <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3">{t('logs.dataSnapshot')}</p>
             <div className="flex flex-wrap gap-3">
               {Object.entries(log.dataSnapshot).map(([k, v]) => (
                 <div key={k} className="bg-[#16161f] border border-[#2a2a3a] rounded-lg px-3 py-2 min-w-32">
@@ -183,6 +185,7 @@ export default function LogsPage() {
 
 function LogsPageInner() {
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const initId = searchParams.get('alarmId') ?? '';
 
   const [filterAlarmId, setFilterAlarmId] = useState(initId);
@@ -222,16 +225,16 @@ function LogsPageInner() {
           {/* Breadcrumb + Header */}
           <div className="mb-8">
             <div className="flex items-center gap-2 text-xs text-zinc-600 mb-3">
-              <Link href="/" className="hover:text-zinc-300 transition">Dashboard</Link>
+              <Link href="/" className="hover:text-zinc-300 transition">{t('logs.breadcrumb')}</Link>
               <span>/</span>
-              <span className="text-zinc-300">Logs</span>
+              <span className="text-zinc-300">{t('nav.logs')}</span>
               {selectedInfo && <><span>/</span><span className="text-cyan-400">ID {selectedInfo.id}</span></>}
             </div>
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
-                <p className="text-xs font-semibold text-cyan-500 uppercase tracking-widest mb-1">Alarm System</p>
+                <p className="text-xs font-semibold text-cyan-500 uppercase tracking-widest mb-1">{t('logs.alarmSystem')}</p>
                 <h1 className="text-3xl font-bold text-white">
-                  {selectedInfo ? `${selectedInfo.alarmNameEN}` : 'Alarm Logs'}
+                  {selectedInfo ? `${selectedInfo.alarmNameEN}` : t('logs.title')}
                 </h1>
                 {selectedInfo && <p className="text-zinc-500 text-sm mt-1">{selectedInfo.alarmNameTH} · ID {selectedInfo.id}</p>}
               </div>
@@ -240,7 +243,7 @@ function LogsPageInner() {
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                  All Logs
+                  {t('logs.allLogs')}
                 </Link>
               )}
             </div>
@@ -268,7 +271,7 @@ function LogsPageInner() {
 
               {/* Data Fields */}
               <div className="p-6">
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">Data Fields</p>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">{t('logs.dataFields')}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {selectedInfo.dataFields.map((field, i) => (
                     <div key={i} className="bg-[#16161f] border border-[#2a2a3a] rounded-xl px-4 py-3">
@@ -291,21 +294,21 @@ function LogsPageInner() {
               <div className="w-2 h-8 rounded-full bg-zinc-600" />
               <div>
                 <p className="text-2xl font-bold text-white">{filteredLogs.length}</p>
-                <p className="text-xs text-zinc-500">Total Logs</p>
+                <p className="text-xs text-zinc-500">{t('logs.totalLogs')}</p>
               </div>
             </div>
             <div className="bg-[#0d0d14] border border-red-500/10 rounded-xl px-4 py-3.5 flex items-center gap-3">
               <div className="w-2 h-8 rounded-full bg-red-500" />
               <div>
                 <p className="text-2xl font-bold text-red-400">{criticalCount}</p>
-                <p className="text-xs text-zinc-500">Critical</p>
+                <p className="text-xs text-zinc-500">{t('logs.critical')}</p>
               </div>
             </div>
             <div className="bg-[#0d0d14] border border-green-500/10 rounded-xl px-4 py-3.5 flex items-center gap-3">
               <div className="w-2 h-8 rounded-full bg-green-500" />
               <div>
                 <p className="text-2xl font-bold text-green-400">{resolvedCount}</p>
-                <p className="text-xs text-zinc-500">Resolved</p>
+                <p className="text-xs text-zinc-500">{t('logs.resolved')}</p>
               </div>
             </div>
           </div>
@@ -315,7 +318,7 @@ function LogsPageInner() {
             <div className="flex flex-wrap gap-3 items-end">
               {/* Alarm ID search */}
               <div className="flex-1 min-w-40">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider block mb-2">Alarm ID / Name</label>
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider block mb-2">{t('logs.filterId')}</label>
                 <div className="relative">
                   <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -323,7 +326,7 @@ function LogsPageInner() {
                   <input
                     ref={inputRef}
                     type="text"
-                    placeholder="ID or name..."
+                    placeholder={t('logs.idOrName')}
                     value={filterAlarmId}
                     onChange={(e) => setFilterAlarmId(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 bg-[#16161f] border border-[#2a2a3a] rounded-lg text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 transition-all"
@@ -340,10 +343,10 @@ function LogsPageInner() {
 
               {/* Severity */}
               <div className="min-w-36">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider block mb-2">Severity</label>
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider block mb-2">{t('logs.filterSev')}</label>
                 <select value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)}
                   className="w-full px-3 py-2 bg-[#16161f] border border-[#2a2a3a] rounded-lg text-sm text-zinc-300 focus:outline-none focus:border-cyan-500/50 transition-all">
-                  <option value="ALL">All</option>
+                  <option value="ALL">{t('common.all')}</option>
                   <option value="CRITICAL">Critical</option>
                   <option value="WARNING">Warning</option>
                   <option value="INFO">Info</option>
@@ -352,10 +355,10 @@ function LogsPageInner() {
 
               {/* Status */}
               <div className="min-w-40">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider block mb-2">Status</label>
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider block mb-2">{t('logs.filterSta')}</label>
                 <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full px-3 py-2 bg-[#16161f] border border-[#2a2a3a] rounded-lg text-sm text-zinc-300 focus:outline-none focus:border-cyan-500/50 transition-all">
-                  <option value="ALL">All</option>
+                  <option value="ALL">{t('common.all')}</option>
                   <option value="ACTIVE">Active</option>
                   <option value="RESOLVED">Resolved</option>
                   <option value="MONITORING">Monitoring</option>
@@ -366,11 +369,11 @@ function LogsPageInner() {
 
               {/* Sort */}
               <div className="min-w-36">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider block mb-2">Sort</label>
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider block mb-2">{t('logs.filterSort')}</label>
                 <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
                   className="w-full px-3 py-2 bg-[#16161f] border border-[#2a2a3a] rounded-lg text-sm text-zinc-300 focus:outline-none focus:border-cyan-500/50 transition-all">
-                  <option value="newest">Newest first</option>
-                  <option value="oldest">Oldest first</option>
+                  <option value="newest">{t('logs.newestFirst')}</option>
+                  <option value="oldest">{t('logs.oldestFirst')}</option>
                 </select>
               </div>
 
@@ -379,7 +382,7 @@ function LogsPageInner() {
                 onClick={() => { setFilterAlarmId(''); setFilterSeverity('ALL'); setFilterStatus('ALL'); setSortOrder('newest'); }}
                 className="px-4 py-2 rounded-lg text-sm text-zinc-500 border border-[#2a2a3a] hover:text-zinc-300 hover:border-[#3a3a4a] transition-all"
               >
-                Reset
+                {t('common.reset')}
               </button>
             </div>
           </div>
@@ -388,18 +391,18 @@ function LogsPageInner() {
           <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
               <h2 className="text-base font-bold text-white">
-                Log Entries
+                {t('logs.logEntries')}
                 <span className="ml-2 text-sm font-normal text-zinc-500">({filteredLogs.length})</span>
               </h2>
-              <span className="text-xs text-zinc-600">Click row to expand data snapshot</span>
+              <span className="text-xs text-zinc-600">{t('logs.clickExpand')}</span>
             </div>
 
             {filteredLogs.length === 0 ? (
               <div className="py-20 text-center">
-                <p className="text-zinc-600 text-base">No logs match your filters.</p>
+                <p className="text-zinc-600 text-base">{t('logs.noLogs')}</p>
                 <button onClick={() => { setFilterAlarmId(''); setFilterSeverity('ALL'); setFilterStatus('ALL'); }}
                   className="mt-3 text-sm text-cyan-500 hover:text-cyan-400 transition">
-                  Clear filters
+                  {t('logs.clearFilters')}
                 </button>
               </div>
             ) : (
@@ -407,13 +410,13 @@ function LogsPageInner() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-[#1e1e2e]">
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Timestamp</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-16">ID</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Alarm Name</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Severity</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Message</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Value</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.timestamp')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-16">{t('table.id')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.name')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.severity')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.message')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.value')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.status')}</th>
                       <th className="px-4 py-3 w-10" />
                     </tr>
                   </thead>
@@ -427,7 +430,7 @@ function LogsPageInner() {
 
           {/* Footer */}
           <div className="mt-8 text-center text-zinc-700 text-xs pb-4">
-            Last updated: {new Date().toLocaleString()} ·AMR ALARM SYSTEM
+            {t('common.lastUpdated')}: {new Date().toLocaleString()} ·AMR ALARM SYSTEM
           </div>
         </div>
       </div>

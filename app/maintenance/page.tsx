@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import { maintenanceAlarms } from '../data/alarms';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // ─── Mock Maintenance Log ────────────────────────────────────────────────────
 type LogType = 'Battery' | 'Motor';
@@ -39,12 +40,18 @@ function LedBadge({ color }: { color: string }) {
 }
 
 function StatusBadge({ status }: { status: ServiceLog['status'] }) {
+  const { t } = useLanguage();
   const map = {
     Completed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
     Scheduled: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
     Pending:   'bg-amber-500/10 text-amber-400 border-amber-500/20',
   };
-  return <span className={`px-2 py-0.5 rounded-md text-xs font-semibold border ${map[status]}`}>{status}</span>;
+  const label = {
+    Completed: t('status.completed'),
+    Scheduled: t('status.scheduled'),
+    Pending:   t('status.pending'),
+  };
+  return <span className={`px-2 py-0.5 rounded-md text-xs font-semibold border ${map[status]}`}>{label[status]}</span>;
 }
 
 function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
@@ -63,6 +70,7 @@ function ProgressBar({ value, max, color }: { value: number; max: number; color:
 // ─── Battery Section ──────────────────────────────────────────────────────────
 function BatteryWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDate: string; onUpdateService: (d: string) => void }) {
   const alarm = maintenanceAlarms.find((a) => a.id === 32)!;
+  const { t } = useLanguage();
   const cycleUsed    = 920;
   const cycleMax     = 1000;
   const lifetimeUsed = 92;
@@ -77,10 +85,10 @@ function BatteryWarningCard({ lastServiceDate, onUpdateService }: { lastServiceD
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-lg border bg-amber-500/15 text-amber-300 border-amber-500/20">ID {alarm.id}</span>
           <LedBadge color={alarm.ledColor} />
-          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-500/15 text-red-400 border border-red-500/20 animate-pulse">⚠ Service Required</span>
+          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-500/15 text-red-400 border border-red-500/20 animate-pulse">{t('maint.serviceRequired')}</span>
         </div>
         <h3 className="text-2xl font-bold text-white mb-0.5">{alarm.alarmNameEN}</h3>
-        <p className="text-zinc-300 text-sm">{alarm.alarmNameTH} · Trigger: {alarm.triggerCondition}</p>
+        <p className="text-zinc-300 text-sm">{alarm.alarmNameTH} · {t('maint.trigger')} {alarm.triggerCondition}</p>
       </div>
 
       <div className="h-px mx-6 bg-amber-500/20" />
@@ -89,28 +97,28 @@ function BatteryWarningCard({ lastServiceDate, onUpdateService }: { lastServiceD
 
         {/* Col 1: Current Health Status */}
         <div className="lg:col-span-1 space-y-3">
-          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-1">1 · Current Health Status</p>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-1">{t('maint.bat.health1')}</p>
 
           <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-zinc-500 font-medium">Battery Health</span>
+              <span className="text-xs text-zinc-500 font-medium">{t('maint.bat.health')}</span>
               <span className="text-2xl font-bold text-red-400">{healthPct}%</span>
             </div>
             <ProgressBar value={lifetimeUsed} max={100} color="bg-teal-500" />
-            <p className="text-xs text-zinc-600 mt-1.5">Lifetime used: <span className="text-red-400 font-semibold">{lifetimeUsed}%</span> — ต่ำกว่าเกณฑ์มาตรฐาน</p>
+            <p className="text-xs text-zinc-600 mt-1.5">{t('maint.bat.lifetimeLabel')} <span className="text-red-400 font-semibold">{lifetimeUsed}%</span> — {t('maint.bat.belowSpec')}</p>
           </div>
 
           <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-zinc-500 font-medium">Charge Cycle Count</span>
+              <span className="text-xs text-zinc-500 font-medium">{t('maint.bat.cycleCount')}</span>
               <span className="text-lg font-bold text-amber-400">{cycleUsed.toLocaleString()} <span className="text-zinc-600 text-sm font-normal">/ {cycleMax.toLocaleString()}</span></span>
             </div>
             <ProgressBar value={cycleUsed} max={cycleMax} color="bg-cyan-500" />
-            <p className="text-xs text-zinc-600 mt-1.5">เหลืออีก <span className="text-amber-400 font-semibold">{cycleMax - cycleUsed} cycles</span> ก่อนถึงขีดจำกัด</p>
+            <p className="text-xs text-zinc-600 mt-1.5"><span className="text-amber-400 font-semibold">{cycleMax - cycleUsed}</span> {t('maint.bat.cyclesLeft')}</p>
           </div>
 
           <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
-            <p className="text-xs text-zinc-500 font-medium mb-2">Pack Voltage</p>
+            <p className="text-xs text-zinc-500 font-medium mb-2">{t('maint.bat.packVoltage')}</p>
             <p className="text-xl font-bold text-white">25.6 V <span className="text-xs font-normal text-zinc-500">nominal</span></p>
             <div className="mt-2 grid grid-cols-4 gap-1">
               {[3.21, 3.20, 3.18, 3.22, 3.19, 3.20, 3.17].map((v, i) => (
@@ -119,18 +127,18 @@ function BatteryWarningCard({ lastServiceDate, onUpdateService }: { lastServiceD
                 </div>
               ))}
             </div>
-            <p className="text-xs text-zinc-600 mt-1.5">Cell Delta: <span className="text-amber-400">0.05 V</span></p>
+            <p className="text-xs text-zinc-600 mt-1.5">{t('maint.bat.cellDelta')} <span className="text-amber-400">0.05 V</span></p>
           </div>
 
           <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
-            <p className="text-xs text-zinc-500 font-medium mb-2">วันที่เข้าซ่อมล่าสุด</p>
+            <p className="text-xs text-zinc-500 font-medium mb-2">{t('maint.bat.lastService')}</p>
             {editDate ? (
               <div className="flex gap-2">
                 <input type="date" value={dateInput} onChange={(e) => setDateInput(e.target.value)}
                   className="flex-1 bg-[#1a1a28] border border-[#2a2a3a] rounded-lg px-2 py-1.5 text-sm text-white outline-none focus:border-amber-500/50" />
                 <button onClick={() => { onUpdateService(dateInput); setEditDate(false); }}
                   className="px-3 py-1.5 bg-amber-500/15 text-amber-400 border border-amber-500/20 rounded-lg text-xs font-semibold hover:bg-amber-500/25 transition-colors">
-                  บันทึก
+                  {t('maint.save')}
                 </button>
               </div>
             ) : (
@@ -138,7 +146,7 @@ function BatteryWarningCard({ lastServiceDate, onUpdateService }: { lastServiceD
                 <span className="text-base font-semibold text-white">{lastServiceDate || '—'}</span>
                 <button onClick={() => setEditDate(true)}
                   className="text-xs text-zinc-500 hover:text-amber-400 transition-colors border border-[#2a2a3a] hover:border-amber-500/30 px-2.5 py-1 rounded-lg">
-                  แก้ไข
+                  {t('maint.edit')}
                 </button>
               </div>
             )}
@@ -148,35 +156,35 @@ function BatteryWarningCard({ lastServiceDate, onUpdateService }: { lastServiceD
         {/* Col 2: Risks + Interim Care */}
         <div className="lg:col-span-1 space-y-5">
           <div>
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">2 · ความเสี่ยงที่ต้องระวัง</p>
+            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">{t('maint.bat.risks')}</p>
             <div className="space-y-2.5">
               <div className="bg-[#0d0d14] border border-orange-500/20 rounded-xl p-4">
-                <p className="text-xs font-semibold text-orange-400 mb-1">⚡ Performance Throttling</p>
-                <p className="text-xs text-zinc-300 leading-relaxed">แบตเตอรี่ที่เสื่อมสภาพทำให้เครื่องทำงานช้าลง ความเร็วและแรงยกลดลงเพื่อปกป้องแบต</p>
+                <p className="text-xs font-semibold text-orange-400 mb-1">{t('maint.bat.r1.t')}</p>
+                <p className="text-xs text-zinc-300 leading-relaxed">{t('maint.bat.r1.d')}</p>
               </div>
               <div className="bg-[#0d0d14] border border-red-500/20 rounded-xl p-4">
-                <p className="text-xs font-semibold text-red-400 mb-1">🔴 Unpredictable Shutdown</p>
-                <p className="text-xs text-zinc-300 leading-relaxed">เครื่องอาจดับเองกะทันหันแม้จะยังมีเปอร์เซ็นต์แบตแสดงอยู่ เนื่องจาก capacity drift</p>
+                <p className="text-xs font-semibold text-red-400 mb-1">{t('maint.bat.r2.t')}</p>
+                <p className="text-xs text-zinc-300 leading-relaxed">{t('maint.bat.r2.d')}</p>
               </div>
               <div className="bg-[#0d0d14] border border-amber-500/20 rounded-xl p-4">
-                <p className="text-xs font-semibold text-amber-400 mb-1">🔥 Battery Swelling Risk</p>
-                <p className="text-xs text-zinc-300 leading-relaxed">เพื่อป้องกันแบตบวม ซึ่งอาจสร้างความเสียหายต่อ chassis และวงจรภายในถาวร</p>
+                <p className="text-xs font-semibold text-amber-400 mb-1">{t('maint.bat.r3.t')}</p>
+                <p className="text-xs text-zinc-300 leading-relaxed">{t('maint.bat.r3.d')}</p>
               </div>
             </div>
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">4 · การดูแลระหว่างรอเปลี่ยน</p>
+            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">{t('maint.bat.interim')}</p>
             <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4 space-y-2.5">
-              {[
-                { icon: '🔌', text: 'เสียบสายชาร์จไว้ขณะใช้งานหนัก เพื่อลดการดึงจากแบต' },
-                { icon: '🌡', text: 'หลีกเลี่ยงการใช้งานในที่มีอุณหภูมิสูง (>40 °C)' },
-                { icon: '🔋', text: 'เปิด Low Power Mode เพื่อลด workload และลดความร้อน' },
-                { icon: '📋', text: 'สำรองข้อมูลสำคัญก่อนนำเครื่องเข้าซ่อม' },
-              ].map((tip, i) => (
+              {([
+                { icon: '🔌', key: 'maint.bat.tip1' },
+                { icon: '🌡', key: 'maint.bat.tip2' },
+                { icon: '🔋', key: 'maint.bat.tip3' },
+                { icon: '📋', key: 'maint.bat.tip4' },
+              ] as { icon: string; key: string }[]).map((tip, i) => (
                 <div key={i} className="flex items-start gap-2.5">
                   <span className="text-sm flex-shrink-0 mt-0.5">{tip.icon}</span>
-                  <p className="text-xs text-zinc-300 leading-relaxed">{tip.text}</p>
+                  <p className="text-xs text-zinc-300 leading-relaxed">{t(tip.key)}</p>
                 </div>
               ))}
             </div>
@@ -195,6 +203,7 @@ const WARRANTY_MAX_KM  = 4_500;
 
 function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDate: string; onUpdateService: (d: string) => void }) {
   const alarm = maintenanceAlarms.find((a) => a.id === 33)!;
+  const { t } = useLanguage();
   const runtimeHrs = 8_750;
   const runtimeMax  = 10_000;
   const runtimePct  = Math.round((runtimeHrs / runtimeMax) * 100);
@@ -221,10 +230,10 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
           <LedBadge color={alarm.ledColor} />
           {warrantyVoid ? (
             <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-500/15 text-red-400 border border-red-500/30 animate-pulse">
-              🚫 WARRANTY VOID
+              {t('maint.warrantyVoidBadge')}
             </span>
           ) : (
-            <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/20">⚠ Plan Service Soon</span>
+            <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/20">{t('maint.planService')}</span>
           )}
         </div>
         <h3 className="text-2xl font-bold text-white mb-0.5">{alarm.alarmNameEN}</h3>
@@ -237,15 +246,15 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
           <div className="flex items-start gap-3">
             <span className="text-2xl flex-shrink-0">🚫</span>
             <div>
-              <p className="text-sm font-bold text-red-400 mb-1">การรับประกันหมดทันที</p>
+              <p className="text-sm font-bold text-red-400 mb-1">{t('maint.mot.voidTitle')}</p>
               <p className="text-xs text-zinc-200 leading-relaxed">
-                ชั่วโมงรวมทุกหลอด (<span className="text-red-300 font-semibold">{totalHrs.toLocaleString()} hr</span>)
-                {hrVoid && <span className="text-red-300 font-semibold"> ▶ เกิน 50,000 hr</span>}
+                {t('maint.mot.voidHours')}<span className="text-red-300 font-semibold">{totalHrs.toLocaleString()} hr</span>)
+                {hrVoid && <span className="text-red-300 font-semibold"> {t('maint.mot.voidOver')} 50,000 hr</span>}
                 {hrVoid && kmVoid && <span className="text-zinc-400"> · </span>}
-                {kmVoid && <>ระยะทางรวม (<span className="text-red-300 font-semibold">{totalKm.toLocaleString()} km</span>)
-                  <span className="text-red-300 font-semibold"> ▶ เกิน 4,500 km</span>
+                {kmVoid && <>{t('maint.mot.voidKm')}<span className="text-red-300 font-semibold">{totalKm.toLocaleString()} km</span>)
+                  <span className="text-red-300 font-semibold"> {t('maint.mot.voidOver')} 4,500 km</span>
                 </>}
-                {' '}— <strong className="text-red-300">การรับประกันหมดอายุทันที</strong>
+                {' '}— <strong className="text-red-300">{t('maint.mot.voidEnd')}</strong>
               </p>
             </div>
           </div>
@@ -258,7 +267,7 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
 
         {/* Col 1: Current Health Status */}
         <div className="lg:col-span-1 space-y-3">
-          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-1">1 · Current Health Status</p>
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-1">{t('maint.mot.health1')}</p>
 
           {/* <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
@@ -279,11 +288,11 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
           </div> */}
 
           <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
-            <p className="text-xs text-zinc-500 font-medium mb-3">สถานะการรับประกัน (รวมทุกหลอด)</p>
+            <p className="text-xs text-zinc-500 font-medium mb-3">{t('maint.mot.warrantyStatus')}</p>
             <div className="space-y-3">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-zinc-400">ชั่วโมงรวม</span>
+                  <span className="text-xs text-zinc-400">{t('maint.mot.totalHours')}</span>
                   <span className={`text-sm font-bold ${hrVoid ? 'text-red-400' : 'text-teal-400'}`}>
                     {totalHrs.toLocaleString()} <span className="text-zinc-600 font-normal text-xs">/ 50,000 hr</span>
                     {hrVoid && <span className="ml-1 text-red-400">⚠</span>}
@@ -295,7 +304,7 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-zinc-400">ระยะทางรวม</span>
+                  <span className="text-xs text-zinc-400">{t('maint.mot.totalDist')}</span>
                   <span className={`text-sm font-bold ${kmVoid ? 'text-red-400' : 'text-teal-400'}`}>
                     {totalKm.toLocaleString()} <span className="text-zinc-600 font-normal text-xs">/ 4,500 km</span>
                     {kmVoid && <span className="ml-1 text-red-400">⚠</span>}
@@ -306,7 +315,7 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
                 </div>
               </div>
               <div className="flex items-center justify-between pt-1 border-t border-[#1e1e2e]">
-                <span className="text-xs text-zinc-400">สถานะประกันรวม</span>
+                <span className="text-xs text-zinc-400">{t('maint.mot.totalWarranty')}</span>
                 <span className={`font-bold text-xs px-2 py-0.5 rounded ${warrantyVoid ? 'bg-red-500/15 text-red-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
                   {warrantyVoid ? 'VOID' : 'ACTIVE'}
                 </span>
@@ -315,14 +324,14 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
           </div>
 
           <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
-            <p className="text-xs text-zinc-500 font-medium mb-2">วันที่เข้าซ่อมล่าสุด</p>
+            <p className="text-xs text-zinc-500 font-medium mb-2">{t('maint.mot.lastService')}</p>
             {editDate ? (
               <div className="flex gap-2">
                 <input type="date" value={dateInput} onChange={(e) => setDateInput(e.target.value)}
                   className="flex-1 bg-[#1a1a28] border border-[#2a2a3a] rounded-lg px-2 py-1.5 text-sm text-white outline-none focus:border-teal-500/50" />
                 <button onClick={() => { onUpdateService(dateInput); setEditDate(false); }}
                   className="px-3 py-1.5 bg-teal-500/15 text-teal-400 border border-teal-500/20 rounded-lg text-xs font-semibold hover:bg-teal-500/25 transition-colors">
-                  บันทึก
+                  {t('maint.save')}
                 </button>
               </div>
             ) : (
@@ -330,7 +339,7 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
                 <span className="text-base font-semibold text-white">{lastServiceDate || '—'}</span>
                 <button onClick={() => setEditDate(true)}
                   className="text-xs text-zinc-500 hover:text-teal-400 transition-colors border border-[#2a2a3a] hover:border-teal-500/30 px-2.5 py-1 rounded-lg">
-                  แก้ไข
+                  {t('maint.edit')}
                 </button>
               </div>
             )}
@@ -340,48 +349,48 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
         {/* Col 2: Risks + Interim Care */}
         <div className="lg:col-span-1 space-y-5">
           <div>
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">2 · ความเสี่ยงที่ต้องระวัง</p>
+            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">{t('maint.mot.risks')}</p>
             <div className="space-y-2.5">
               {warrantyVoid && (
                 <div className="bg-[#0d0d14] border border-red-500/30 rounded-xl p-4">
-                  <p className="text-xs font-semibold text-red-400 mb-1">🚫 หมดการรับประกัน</p>
-                  <p className="text-xs text-zinc-300 leading-relaxed">หากอุปกรณ์เสียหายในขณะนี้ ค่าซ่อมและอะไหล่จะ<strong className="text-red-300">ไม่ได้รับการคุ้มครอง</strong> ทั้งหมด รวมถึงค่าแรงช่างและค่าขนส่ง</p>
+                  <p className="text-xs font-semibold text-red-400 mb-1">{t('maint.mot.r0.t')}</p>
+                  <p className="text-xs text-zinc-300 leading-relaxed">{t('maint.mot.r0.d')}</p>
                 </div>
               )}
               <div className="bg-[#0d0d14] border border-orange-500/20 rounded-xl p-4">
-                <p className="text-xs font-semibold text-orange-400 mb-1">⚡ Performance Degradation</p>
-                <p className="text-xs text-zinc-300 leading-relaxed">มอเตอร์ที่ใกล้ถึงขีดจำกัดอาจมี torque ลดลง ส่งผลต่อความสามารถในการยกน้ำหนัก</p>
+                <p className="text-xs font-semibold text-orange-400 mb-1">{t('maint.mot.r1.t')}</p>
+                <p className="text-xs text-zinc-300 leading-relaxed">{t('maint.mot.r1.d')}</p>
               </div>
               <div className="bg-[#0d0d14] border border-red-500/20 rounded-xl p-4">
-                <p className="text-xs font-semibold text-red-400 mb-1">🔴 Unexpected Motor Failure</p>
-                <p className="text-xs text-zinc-300 leading-relaxed">มอเตอร์อาจหยุดทำงานกลางคันโดยไม่มีสัญญาณเตือนล่วงหน้า ส่งผลให้ mission ล้มเหลว</p>
+                <p className="text-xs font-semibold text-red-400 mb-1">{t('maint.mot.r2.t')}</p>
+                <p className="text-xs text-zinc-300 leading-relaxed">{t('maint.mot.r2.d')}</p>
               </div>
               <div className="bg-[#0d0d14] border border-amber-500/20 rounded-xl p-4">
-                <p className="text-xs font-semibold text-amber-400 mb-1">🌡 Overheating Risk</p>
-                <p className="text-xs text-zinc-300 leading-relaxed">แบริ่งที่สึกหรออาจทำให้เกิดความร้อนสูงผิดปกติ เพิ่มความเสี่ยงต่อ safety alarm</p>
+                <p className="text-xs font-semibold text-amber-400 mb-1">{t('maint.mot.r3.t')}</p>
+                <p className="text-xs text-zinc-300 leading-relaxed">{t('maint.mot.r3.d')}</p>
               </div>
             </div>
           </div>
 
           <div>
             <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">
-              {warrantyVoid ? '3 · การดำเนินการเร่งด่วน (ประกันหมด)' : '4 · การดูแลระหว่างรอเปลี่ยน'}
+              {warrantyVoid ? t('maint.mot.urgentVoid') : t('maint.mot.interim')}
             </p>
             <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4 space-y-2.5">
               {(warrantyVoid ? [
-                { icon: '📞', text: 'ติดต่อฝ่าย Service ทันที — แจ้งหมายเลข S/N ของหลอดที่เกินขีดจำกัด' },
-                { icon: '📑', text: 'จัดเตรียมเอกสาร: บันทึก runtime / odometer ณ วันที่เกินขีดจำกัด' },
-                { icon: '⛔', text: 'พิจารณาหยุดใช้งาน AMR จนกว่าจะได้รับการประเมินจากช่างผู้เชี่ยวชาญ' },
-                { icon: '💰', text: 'ขอใบเสนอราคาซ่อมหรือเปลี่ยนหลอดมอเตอร์ที่เกินขีดจำกัด' },
+                { icon: '📞', key: 'maint.mot.void.tip1' },
+                { icon: '📑', key: 'maint.mot.void.tip2' },
+                { icon: '⛔', key: 'maint.mot.void.tip3' },
+                { icon: '💰', key: 'maint.mot.void.tip4' },
               ] : [
-                { icon: '🔧', text: 'ลด duty cycle หรือความถี่ mission เพื่อลดชั่วโมงมอเตอร์' },
-                { icon: '🌡', text: 'ตรวจสอบอุณหภูมิมอเตอร์ทุกกะ หากเกิน 65 °C ให้หยุดทันที' },
-                { icon: '🔊', text: 'หากได้ยินเสียงผิดปกติ (เสียงดัง/สั่น) ให้รายงานทันที' },
-                { icon: '📋', text: 'จดบันทึก hours และ km จริงของแต่ละหลอดเพื่อแจ้งช่างก่อนเข้าซ่อม' },
-              ] as { icon: string; text: string }[]).map((tip, i) => (
+                { icon: '🔧', key: 'maint.mot.tip1' },
+                { icon: '🌡', key: 'maint.mot.tip2' },
+                { icon: '🔊', key: 'maint.mot.tip3' },
+                { icon: '📋', key: 'maint.mot.tip4' },
+              ] as { icon: string; key: string }[]).map((tip, i) => (
                 <div key={i} className="flex items-start gap-2.5">
                   <span className="text-sm flex-shrink-0 mt-0.5">{tip.icon}</span>
-                  <p className="text-xs text-zinc-300 leading-relaxed">{tip.text}</p>
+                  <p className="text-xs text-zinc-300 leading-relaxed">{t(tip.key)}</p>
                 </div>
               ))}
             </div>
@@ -395,30 +404,31 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
 
 // ─── Maintenance Log Table ────────────────────────────────────────────────────
 function MaintenanceLogTable() {
+  const { t } = useLanguage();
   const [filter, setFilter] = useState<'All' | LogType>('All');
   const filtered = filter === 'All' ? maintenanceLogs : maintenanceLogs.filter((l) => l.type === filter);
   const tabs: Array<'All' | LogType> = ['All', 'Battery', 'Motor'];
-  const tabCount = (t: 'All' | LogType) =>
-    t === 'All' ? maintenanceLogs.length : maintenanceLogs.filter((l) => l.type === t).length;
+  const tabCount = (tab: 'All' | LogType) =>
+    tab === 'All' ? maintenanceLogs.length : maintenanceLogs.filter((l) => l.type === tab).length;
 
   return (
     <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-2xl overflow-hidden mb-6">
       <div className="px-6 py-5 border-b border-[#1e1e2e] flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-white">Maintenance Log</h2>
-          <p className="text-zinc-500 text-sm mt-0.5">ประวัติการบำรุงรักษาพร้อม Timestamp แยกตามประเภท</p>
+          <h2 className="text-xl font-bold text-white">{t('maint.log.title')}</h2>
+          <p className="text-zinc-500 text-sm mt-0.5">{t('maint.log.subtitle')}</p>
         </div>
         <div className="flex gap-2">
-          {tabs.map((t) => (
-            <button key={t} onClick={() => setFilter(t)}
+          {tabs.map((tab) => (
+            <button key={tab} onClick={() => setFilter(tab)}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
-                filter === t
-                  ? t === 'Battery' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-                  : t === 'Motor'   ? 'bg-teal-500/10 text-teal-400 border-teal-500/30'
-                  :                   'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
+                filter === tab
+                  ? tab === 'Battery' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                  : tab === 'Motor'   ? 'bg-teal-500/10 text-teal-400 border-teal-500/30'
+                  :                    'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
                   : 'bg-transparent text-zinc-500 border-[#2a2a3a] hover:text-zinc-300'
               }`}>
-              {t} <span className="ml-1 opacity-60">({tabCount(t)})</span>
+              {tab} <span className="ml-1 opacity-60">({tabCount(tab)})</span>
             </button>
           ))}
         </div>
@@ -428,11 +438,11 @@ function MaintenanceLogTable() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[#1e1e2e]">
-              <th className="px-5 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-40">Timestamp</th>
-              <th className="px-5 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-28">Type</th>
-              <th className="px-5 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">Event</th>
-              <th className="px-5 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-32">Technician</th>
-              <th className="px-5 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-28">Status</th>
+              <th className="px-5 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-40">{t('table.timestamp')}</th>
+              <th className="px-5 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-28">{t('table.type')}</th>
+              <th className="px-5 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">{t('table.event')}</th>
+              <th className="px-5 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-32">{t('table.technician')}</th>
+              <th className="px-5 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider w-28">{t('table.status')}</th>
             </tr>
           </thead>
           <tbody>
@@ -467,6 +477,7 @@ function MaintenanceLogTable() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function MaintenancePage() {
+  const { t } = useLanguage();
   const [batteryLastService, setBatteryLastService] = useState('2026-04-15');
   const [motorLastService, setMotorLastService]     = useState('2026-04-15');
 
@@ -478,9 +489,9 @@ export default function MaintenancePage() {
 
           {/* Header */}
           <div className="mb-8">
-            <p className="text-xs font-semibold text-amber-500 uppercase tracking-widest mb-2">Robot Alarm System</p>
-            <h1 className="text-3xl font-bold text-white mb-1">Maintenance & Warning</h1>
-            <p className="text-zinc-300 text-sm">แนวทางการแก้ปัญหาและเงื่อนไข Trigger สำหรับงานบำรุงรักษา</p>
+            <p className="text-xs font-semibold text-amber-500 uppercase tracking-widest mb-2">{t('common.robotAlarmSystem')}</p>
+            <h1 className="text-3xl font-bold text-white mb-1">{t('maint.title')}</h1>
+            <p className="text-zinc-300 text-sm">{t('maint.subtitle')}</p>
           </div>
 
           <BatteryWarningCard lastServiceDate={batteryLastService} onUpdateService={setBatteryLastService} />
@@ -489,7 +500,7 @@ export default function MaintenancePage() {
 
 
           <div className="text-center text-zinc-600 text-xs pb-4 mt-8">
-            AMR Alarm System · Maintenance & Warning
+            AMR Alarm System · {t('maint.title')}
           </div>
         </div>
       </div>
