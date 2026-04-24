@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Navbar from './components/Navbar';
 import AlarmTimeChart from './components/AlarmTimeChart';
 import AlarmMonthlyChart from './components/AlarmMonthlyChart';
@@ -31,7 +30,10 @@ const rankColors = ['text-amber-400', 'text-zinc-300', 'text-amber-600', 'text-z
 
 function LastUpdated() {
   const [timestamp, setTimestamp] = useState('');
-  useEffect(() => { setTimestamp(new Date().toLocaleString()); }, []);
+  useEffect(() => {
+    const id = setTimeout(() => setTimestamp(new Date().toLocaleString()), 0);
+    return () => clearTimeout(id);
+  }, []);
   return <>{timestamp}</>;
 }
 

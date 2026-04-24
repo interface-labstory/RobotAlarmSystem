@@ -190,29 +190,69 @@ function BatteryWarningCard({ lastServiceDate, onUpdateService }: { lastServiceD
 }
 
 // ─── Motor Section ────────────────────────────────────────────────────────────
+const WARRANTY_MAX_HRS = 50_000;
+const WARRANTY_MAX_KM  = 4_500;
+
 function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDate: string; onUpdateService: (d: string) => void }) {
   const alarm = maintenanceAlarms.find((a) => a.id === 33)!;
-  const runtimeHrs = 8750;
-  const runtimeMax  = 10000;
+  const runtimeHrs = 8_750;
+  const runtimeMax  = 10_000;
   const runtimePct  = Math.round((runtimeHrs / runtimeMax) * 100);
   const healthPct   = 100 - runtimePct;
   const [editDate, setEditDate] = useState(false);
   const [dateInput, setDateInput] = useState(lastServiceDate);
 
+  // ─ Aggregate across all motors ─────────────────────────────────
+  const totalHrs = 196_700;   // 48,200 + 51,500 + 45,000 + 52,000
+  const totalKm  = 17_670;    // 4,320  + 4,650  + 3,900  + 4,800
+  const hrVoid   = totalHrs > WARRANTY_MAX_HRS;
+  const kmVoid   = totalKm  > WARRANTY_MAX_KM;
+  const warrantyVoid = hrVoid || kmVoid;
+  const hrPct    = Math.min(100, (totalHrs / WARRANTY_MAX_HRS) * 100);
+  const kmPct    = Math.min(100, (totalKm  / WARRANTY_MAX_KM)  * 100);
+  // ─────────────────────────────────────────────────────────────
+
   return (
-    <div className="rounded-2xl border border-teal-500/25 bg-teal-500/5 overflow-hidden mb-5">
+    <div className={`rounded-2xl border overflow-hidden mb-5 ${warrantyVoid ? 'border-red-500/40 bg-red-500/5' : 'border-teal-500/25 bg-teal-500/5'}`}>
       {/* Header */}
       <div className="px-6 pt-6 pb-4">
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-lg border bg-teal-500/15 text-teal-300 border-teal-500/20">ID {alarm.id}</span>
           <LedBadge color={alarm.ledColor} />
-          <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/20">⚠ Plan Service Soon</span>
+          {warrantyVoid ? (
+            <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-500/15 text-red-400 border border-red-500/30 animate-pulse">
+              🚫 WARRANTY VOID
+            </span>
+          ) : (
+            <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/20">⚠ Plan Service Soon</span>
+          )}
         </div>
         <h3 className="text-2xl font-bold text-white mb-0.5">{alarm.alarmNameEN}</h3>
         <p className="text-zinc-300 text-sm">{alarm.alarmNameTH} · Trigger: {alarm.triggerCondition}</p>
       </div>
 
-      <div className="h-px mx-6 bg-teal-500/20" />
+      {/* ── Warranty Void Banner ── */}
+      {warrantyVoid && (
+        <div className="mx-6 mb-4 rounded-xl border border-red-500/40 bg-red-500/10 px-5 py-4">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl flex-shrink-0">🚫</span>
+            <div>
+              <p className="text-sm font-bold text-red-400 mb-1">การรับประกันหมดทันที</p>
+              <p className="text-xs text-zinc-200 leading-relaxed">
+                ชั่วโมงรวมทุกหลอด (<span className="text-red-300 font-semibold">{totalHrs.toLocaleString()} hr</span>)
+                {hrVoid && <span className="text-red-300 font-semibold"> ▶ เกิน 50,000 hr</span>}
+                {hrVoid && kmVoid && <span className="text-zinc-400"> · </span>}
+                {kmVoid && <>ระยะทางรวม (<span className="text-red-300 font-semibold">{totalKm.toLocaleString()} km</span>)
+                  <span className="text-red-300 font-semibold"> ▶ เกิน 4,500 km</span>
+                </>}
+                {' '}— <strong className="text-red-300">การรับประกันหมดอายุทันที</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={`h-px mx-6 ${warrantyVoid ? 'bg-red-500/20' : 'bg-teal-500/20'}`} />
 
       <div className="px-6 py-5 grid grid-cols-1 lg:grid-cols-2 gap-6">
 
@@ -220,27 +260,58 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
         <div className="lg:col-span-1 space-y-3">
           <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-1">1 · Current Health Status</p>
 
-          <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
+          {/* <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-zinc-500 font-medium">Motor Health</span>
               <span className="text-2xl font-bold text-amber-400">{healthPct}%</span>
             </div>
             <ProgressBar value={runtimePct} max={100} color="bg-teal-500" />
             <p className="text-xs text-zinc-600 mt-1.5">Lifetime used: <span className="text-amber-400 font-semibold">{runtimePct}%</span></p>
-          </div>
+          </div> */}
 
-          <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
+          {/* <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-zinc-500 font-medium">Runtime Hours</span>
+              <span className="text-xs text-zinc-500 font-medium">Runtime Hours (System)</span>
               <span className="text-lg font-bold text-teal-400">{runtimeHrs.toLocaleString()} <span className="text-zinc-600 text-sm font-normal">/ {runtimeMax.toLocaleString()} hrs</span></span>
             </div>
             <ProgressBar value={runtimeHrs} max={runtimeMax} color="bg-teal-500" />
             <p className="text-xs text-zinc-600 mt-1.5">เหลืออีก <span className="text-teal-400 font-semibold">{(runtimeMax - runtimeHrs).toLocaleString()} hrs</span> ก่อนถึงขีดจำกัด</p>
-          </div>
+          </div> */}
 
           <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
-            <p className="text-xs text-zinc-500 font-medium mb-2">Request Status</p>
-            <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">PENDING REQUEST</span>
+            <p className="text-xs text-zinc-500 font-medium mb-3">สถานะการรับประกัน (รวมทุกหลอด)</p>
+            <div className="space-y-3">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-zinc-400">ชั่วโมงรวม</span>
+                  <span className={`text-sm font-bold ${hrVoid ? 'text-red-400' : 'text-teal-400'}`}>
+                    {totalHrs.toLocaleString()} <span className="text-zinc-600 font-normal text-xs">/ 50,000 hr</span>
+                    {hrVoid && <span className="ml-1 text-red-400">⚠</span>}
+                  </span>
+                </div>
+                <div className="w-full bg-[#1a1a28] rounded-full h-2 overflow-hidden">
+                  <div className={`h-full rounded-full ${hrVoid ? 'bg-red-500' : hrPct >= 90 ? 'bg-amber-500' : 'bg-teal-500'}`} style={{ width: `${hrPct}%` }} />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-zinc-400">ระยะทางรวม</span>
+                  <span className={`text-sm font-bold ${kmVoid ? 'text-red-400' : 'text-teal-400'}`}>
+                    {totalKm.toLocaleString()} <span className="text-zinc-600 font-normal text-xs">/ 4,500 km</span>
+                    {kmVoid && <span className="ml-1 text-red-400">⚠</span>}
+                  </span>
+                </div>
+                <div className="w-full bg-[#1a1a28] rounded-full h-2 overflow-hidden">
+                  <div className={`h-full rounded-full ${kmVoid ? 'bg-red-500' : kmPct >= 90 ? 'bg-amber-500' : 'bg-teal-500'}`} style={{ width: `${kmPct}%` }} />
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-1 border-t border-[#1e1e2e]">
+                <span className="text-xs text-zinc-400">สถานะประกันรวม</span>
+                <span className={`font-bold text-xs px-2 py-0.5 rounded ${warrantyVoid ? 'bg-red-500/15 text-red-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                  {warrantyVoid ? 'VOID' : 'ACTIVE'}
+                </span>
+              </div>
+            </div>
           </div>
 
           <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
@@ -271,6 +342,12 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
           <div>
             <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">2 · ความเสี่ยงที่ต้องระวัง</p>
             <div className="space-y-2.5">
+              {warrantyVoid && (
+                <div className="bg-[#0d0d14] border border-red-500/30 rounded-xl p-4">
+                  <p className="text-xs font-semibold text-red-400 mb-1">🚫 หมดการรับประกัน</p>
+                  <p className="text-xs text-zinc-300 leading-relaxed">หากอุปกรณ์เสียหายในขณะนี้ ค่าซ่อมและอะไหล่จะ<strong className="text-red-300">ไม่ได้รับการคุ้มครอง</strong> ทั้งหมด รวมถึงค่าแรงช่างและค่าขนส่ง</p>
+                </div>
+              )}
               <div className="bg-[#0d0d14] border border-orange-500/20 rounded-xl p-4">
                 <p className="text-xs font-semibold text-orange-400 mb-1">⚡ Performance Degradation</p>
                 <p className="text-xs text-zinc-300 leading-relaxed">มอเตอร์ที่ใกล้ถึงขีดจำกัดอาจมี torque ลดลง ส่งผลต่อความสามารถในการยกน้ำหนัก</p>
@@ -287,14 +364,21 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">4 · การดูแลระหว่างรอเปลี่ยน</p>
+            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">
+              {warrantyVoid ? '3 · การดำเนินการเร่งด่วน (ประกันหมด)' : '4 · การดูแลระหว่างรอเปลี่ยน'}
+            </p>
             <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4 space-y-2.5">
-              {[
+              {(warrantyVoid ? [
+                { icon: '📞', text: 'ติดต่อฝ่าย Service ทันที — แจ้งหมายเลข S/N ของหลอดที่เกินขีดจำกัด' },
+                { icon: '📑', text: 'จัดเตรียมเอกสาร: บันทึก runtime / odometer ณ วันที่เกินขีดจำกัด' },
+                { icon: '⛔', text: 'พิจารณาหยุดใช้งาน AMR จนกว่าจะได้รับการประเมินจากช่างผู้เชี่ยวชาญ' },
+                { icon: '💰', text: 'ขอใบเสนอราคาซ่อมหรือเปลี่ยนหลอดมอเตอร์ที่เกินขีดจำกัด' },
+              ] : [
                 { icon: '🔧', text: 'ลด duty cycle หรือความถี่ mission เพื่อลดชั่วโมงมอเตอร์' },
                 { icon: '🌡', text: 'ตรวจสอบอุณหภูมิมอเตอร์ทุกกะ หากเกิน 65 °C ให้หยุดทันที' },
                 { icon: '🔊', text: 'หากได้ยินเสียงผิดปกติ (เสียงดัง/สั่น) ให้รายงานทันที' },
-                { icon: '📋', text: 'จดบันทึก hours ใช้งานจริงเพื่อแจ้งช่างก่อนเข้าซ่อม' },
-              ].map((tip, i) => (
+                { icon: '📋', text: 'จดบันทึก hours และ km จริงของแต่ละหลอดเพื่อแจ้งช่างก่อนเข้าซ่อม' },
+              ] as { icon: string; text: string }[]).map((tip, i) => (
                 <div key={i} className="flex items-start gap-2.5">
                   <span className="text-sm flex-shrink-0 mt-0.5">{tip.icon}</span>
                   <p className="text-xs text-zinc-300 leading-relaxed">{tip.text}</p>
@@ -303,7 +387,6 @@ function MotorWarningCard({ lastServiceDate, onUpdateService }: { lastServiceDat
             </div>
           </div>
         </div>
-
 
       </div>
     </div>
@@ -386,8 +469,6 @@ function MaintenanceLogTable() {
 export default function MaintenancePage() {
   const [batteryLastService, setBatteryLastService] = useState('2026-04-15');
   const [motorLastService, setMotorLastService]     = useState('2026-04-15');
-
-  const alarm34 = maintenanceAlarms.find((a) => a.id === 34)!;
 
   return (
     <>

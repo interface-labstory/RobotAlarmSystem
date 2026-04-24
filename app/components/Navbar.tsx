@@ -20,12 +20,13 @@ function useCountdown(target: Date) {
     const minutes = Math.floor((diff % 3600000) / 60000);
     return { days, hours, minutes, passed: false };
   };
-  const [countdown, setCountdown] = useState(calc);
+  const [countdown, setCountdown] = useState<{ days: number; hours: number; minutes: number; passed: boolean } | null>(null);
   useEffect(() => {
+    setCountdown(calc());
     const t = setInterval(() => setCountdown(calc()), 60000);
     return () => clearInterval(t);
   }, []);
-  return countdown;
+  return countdown ?? { days: 0, hours: 0, minutes: 0, passed: false };
 }
 
 type FontSize = 'sm' | 'md' | 'lg' | 'xl';
