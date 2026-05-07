@@ -8,7 +8,7 @@ import AlarmMonthlyChart from './components/AlarmMonthlyChart';
 import { allAlarms, topAlarms, categoryColors } from './data/alarms';
 import { maintenanceAlarms} from './data/alarms';
 import { useLanguage } from './contexts/LanguageContext';
-
+import MachineDashboard from './components/Downtime';
 
 function LedBadge({ color }: { color: string }) {
   if (color === 'RED')
@@ -92,6 +92,10 @@ export default function Dashboard() {
 
           {/* Monthly Chart */}
           <AlarmMonthlyChart />
+
+          <MachineDashboard />
+
+
 
           {/* Top 10 */}
           <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-2xl overflow-hidden mb-6">
